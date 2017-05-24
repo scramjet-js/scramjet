@@ -1,0 +1,6 @@
+[submodule "src/ext/bde"]
+	path = src/ext/bde
+	url = https://github.com/bloomberg/bde.git
+[submodule "src/ext/bde-tools"]
+	path = src/ext/bde-tools
+	url = https://github.com/bloomberg/bde-tools.git

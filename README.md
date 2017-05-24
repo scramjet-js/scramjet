@@ -28,3 +28,30 @@ different objectives:
    access to powerful, high-performance native libraries.  We aim to make the
    transition between script and native code *fast*, and the creation of
    bindings to native libraries simple.
+
+## Building
+
+One time after creating a clone, you will need to build BDE (until I can get
+this automated somehow):
+
+```
+$ git clone https://github.com/scramjet-js/scramjet.git scramjet
+$ cd scramjet
+$ cd tools
+$ bash build-bde.bash
+```
+
+Subsequently, to build:
+
+```
+$ cd src
+$ mkdir build     # once
+$ cd build
+$ cmake ..
+$ make
+```
+
+The following templates are provided:
+
+- `src/groups/sjt` -- sample package group
+- `src/apps/hello` -- sample application using `sjt` and BDE
