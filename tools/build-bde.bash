@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 cd ..
 git submodule update --init .
 cd src/ext/bde

@@ -42,6 +42,9 @@ class Engine {
 
     void setGlobal(const BloombergLP::bslstl::StringRef& name,
                    const BloombergLP::bdld::Datum& value);
+
+    const BloombergLP::bdld::Datum&
+        getGlobal(const BloombergLP::bslstl::StringRef& name);
 };
 }
 

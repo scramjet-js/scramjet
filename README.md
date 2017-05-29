@@ -34,21 +34,27 @@ different objectives:
 One time after creating a clone, you will need to build BDE (until I can get
 this automated somehow):
 
-```
+```bash
 $ git clone https://github.com/scramjet-js/scramjet.git scramjet
 $ cd scramjet
 $ cd tools
-$ bash build-bde.bash
+$ ./build-bde.bash
 ```
 
 Subsequently, to build:
 
-```
+```bash
 $ cd src
 $ mkdir build     # once
 $ cd build
 $ cmake ..
 $ make
+```
+
+Then, to run tests (from the `build` directory:
+
+```bash
+$ ../../tools/test.bash
 ```
 
 The following templates are provided:

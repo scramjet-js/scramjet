@@ -1,7 +1,12 @@
 cmake_minimum_required (VERSION 2.6)
 include_directories("sjtm")
+include_directories("sjtt")
+include_directories("sjtu")
 add_subdirectory(sjtm)
-add_library(sjt $<TARGET_OBJECTS:sjtm>)
+add_subdirectory(sjtt)
+add_subdirectory(sjtu)
+add_library(sjt $<TARGET_OBJECTS:sjtm> $<TARGET_OBJECTS:sjtt>
+    $<TARGET_OBJECTS:sjtu>)
 target_link_libraries(sjt
     ${CMAKE_CURRENT_SOURCE_DIR}/../../ext/bde/build/groups/bdl/libbdl.a)
 target_link_libraries(sjt
