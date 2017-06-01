@@ -45,6 +45,15 @@ class Bytecode {
         e_Push,
             // Push the data in this opcode on the stack.
 
+        e_Load,
+            // Push the value from the local variable stored in the index
+            // specified by the integer value stored in this object  onto the
+            // top of the stack.
+
+        e_Store,
+            // Pop the value from the top of the stack and store it into the
+            // index specified by the integer value stored in this object.
+
         e_AddDoubles,
             // Pop the top two arguments on the stack, add them, and push
             // the result.
@@ -55,6 +64,10 @@ class Bytecode {
         e_Return
             // stop evaluation and return the value on the top of the stack
     };
+
+    static const int s_NumLocals = 32;
+        // Maximum number of addressable local variables.
+
   private:
     // DATA
     Datum  d_data;
@@ -62,11 +75,11 @@ class Bytecode {
   public:
     // CLASS METHODS
     static Bytecode createOpcode(Opcode opcode);
-        // Return a new 'Bytecode' object having the specified 'opcode'.  The
-        // behavior is unless 'e_ExternalFunction != opcode'.
+        // Return a new 'Bytecode' object having the specified 'opcode' and no
+        // data.
 
-    static Bytecode createPush(const Datum& data);
-        // Return a new 'Bytecode' object having the code of 'e_Push' and the
+    static Bytecode createOpcode(Opcode opcode, const Datum& data);
+        // Return a new 'Bytecode' object having the specified 'opcode' and the
         // specified 'data'.
 
     // TRAITS
@@ -112,17 +125,16 @@ class Bytecode {
 // CLASS METHODS
 inline
 Bytecode Bytecode::createOpcode(Opcode opcode) {
-    BSLS_ASSERT(e_Push != opcode);
     Bytecode result;
     result.d_opcode = opcode;
     return result;
 }
 
 inline
-Bytecode Bytecode::createPush(const Datum& data) {
+Bytecode Bytecode::createOpcode(Opcode opcode, const Datum& data) {
     Bytecode result;
+    result.d_opcode = opcode;
     result.d_data = data;
-    result.d_opcode = e_Push;
     return result;
 }
 

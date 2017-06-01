@@ -67,11 +67,11 @@ int main(int argc, char *argv[])
     switch (test) { case 0:
       case 2: {
         if (verbose) cout << endl
-                          << "createPush" << endl
+                          << "createOpcode" << endl
                           << "======================" << endl;
 
         const bdld::Datum d = bdld::Datum::createInteger(3);
-        const Bytecode code = Bytecode::createPush(d);
+        const Bytecode code = Bytecode::createOpcode(Bytecode::e_Push, d);
         ASSERT(Bytecode::e_Push == code.opcode());
         ASSERT(d == code.data());
       } break;

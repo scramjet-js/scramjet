@@ -87,6 +87,39 @@ int main(int argc, char *argv[])
     // TODO: need to set up a DSEL for this.
 
     switch (test) { case 0:
+      case 4: {
+        if (verbose) cout << endl
+                          << "load and store" << endl
+                          << "==============" << endl;
+
+        // We're going to:
+        // 1. store a 1 in location 3
+        // 2. push a 2 on the stack
+        // 3. load the value from location 3
+        // 4. return it and verify it's a 1
+
+        bdlma::SequentialAllocator alloc;
+        bsl::vector<sjtt::Bytecode> code;
+        code.push_back(sjtt::Bytecode::createOpcode(
+                                               sjtt::Bytecode::e_Push,
+                                               bdld::Datum::createInteger(1)));
+        code.push_back(sjtt::Bytecode::createOpcode(
+                                               sjtt::Bytecode::e_Store,
+                                               bdld::Datum::createInteger(3)));
+        code.push_back(sjtt::Bytecode::createOpcode(
+                                               sjtt::Bytecode::e_Push,
+                                               bdld::Datum::createInteger(2)));
+        code.push_back(sjtt::Bytecode::createOpcode(
+                                               sjtt::Bytecode::e_Load,
+                                               bdld::Datum::createInteger(3)));
+        code.push_back(sjtt::Bytecode::createOpcode(sjtt::Bytecode::e_Return));
+        const bdld::Datum result = InterpretUtil::interpretBytecode(
+                                                                  &alloc,
+                                                                  &code[0],
+                                                                  code.size());
+        ASSERT(bdld::Datum::createInteger(1) == result);
+      } break;
+
       case 3: {
         if (verbose) cout << endl
                           << "execute" << endl
@@ -105,24 +138,28 @@ int main(int argc, char *argv[])
 
             // Base value, so we always add at least one
 
-            code.push_back(sjtt::Bytecode::createPush(
+            code.push_back(sjtt::Bytecode::createOpcode(
+                                                sjtt::Bytecode::e_Push,
                                                 bdld::Datum::createDouble(1)));
 
             // The arguments for the function to execute
 
             for (int j = 0; j < i; ++j) {
-                code.push_back(sjtt::Bytecode::createPush(
+                code.push_back(sjtt::Bytecode::createOpcode(
+                                                sjtt::Bytecode::e_Push,
                                                 bdld::Datum::createDouble(2)));
             }
 
             // push the number of arguments
 
-            code.push_back(sjtt::Bytecode::createPush(
+            code.push_back(sjtt::Bytecode::createOpcode(
+                                               sjtt::Bytecode::e_Push,
                                                bdld::Datum::createInteger(i)));
 
             // the function to execute
 
-            code.push_back(sjtt::Bytecode::createPush(
+            code.push_back(sjtt::Bytecode::createOpcode(
+                     sjtt::Bytecode::e_Push,
                      sjtu::DatumUtil::datumFromExternalFunction(testExecute)));
 
             // execute it
@@ -154,9 +191,11 @@ int main(int argc, char *argv[])
 
         bdlma::SequentialAllocator alloc;
         bsl::vector<sjtt::Bytecode> code;
-        code.push_back(sjtt::Bytecode::createPush(
+        code.push_back(sjtt::Bytecode::createOpcode(
+                                              sjtt::Bytecode::e_Push,
                                               bdld::Datum::createDouble(3.0)));
-        code.push_back(sjtt::Bytecode::createPush(
+        code.push_back(sjtt::Bytecode::createOpcode(
+                                              sjtt::Bytecode::e_Push,
                                               bdld::Datum::createDouble(1.0)));
         code.push_back(sjtt::Bytecode::createOpcode(
                                                 sjtt::Bytecode::e_AddDoubles));
@@ -175,7 +214,8 @@ int main(int argc, char *argv[])
         bdlma::SequentialAllocator alloc;
         bsl::vector<sjtt::Bytecode> code;
         const bdld::Datum value = bdld::Datum::createInteger(3);
-        code.push_back(sjtt::Bytecode::createPush(value));
+        code.push_back(sjtt::Bytecode::createOpcode(sjtt::Bytecode::e_Push,
+                                                    value));
         code.push_back(sjtt::Bytecode::createOpcode(sjtt::Bytecode::e_Return));
         const bdld::Datum result = InterpretUtil::interpretBytecode(
                                                                   &alloc,
