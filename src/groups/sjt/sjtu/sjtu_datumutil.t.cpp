@@ -54,6 +54,11 @@ void aSsErT(bool condition, const char *message, int line)
 #define L_           BDLS_TESTUTIL_L_  // current Line number
 
 
+namespace {
+    void testExternalFunction(const sjtt::ExecutionContext&) {
+    }
+}
+
 // ============================================================================
 //                               MAIN PROGRAM
 // ----------------------------------------------------------------------------
@@ -67,6 +72,35 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
+      case 5: {
+        if (verbose) cout << endl
+                          << "isExternalFunction" << endl
+                          << "==================" << endl;
+        const bdld::Datum d = DatumUtil::datumFromExternalFunction(
+                                                         testExternalFunction);
+        ASSERT(testExternalFunction == DatumUtil::getExternalFunction(d));
+      } break;
+      case 4: {
+        if (verbose) cout << endl
+                          << "isExternalFunction" << endl
+                          << "==================" << endl;
+        ASSERT(false ==
+               DatumUtil::isExternalFunction(bdld::Datum::createNull()));
+        ASSERT(true ==
+               DatumUtil::isExternalFunction(
+                  DatumUtil::datumFromExternalFunction(testExternalFunction)));
+      } break;
+      case 3: {
+        if (verbose) cout << endl
+                          << "datumFromExternalFunction" << endl
+                          << "===========" << endl;
+        const bdld::Datum result = DatumUtil::datumFromExternalFunction(
+                                                         testExternalFunction);
+        ASSERT(result.isUdt());
+        const bdld::DatumUdt udt = result.theUdt();
+        ASSERT(testExternalFunction ==
+                    reinterpret_cast<DatumUtil::ExternalFunction>(udt.data()));
+      } break;
       case 2: {
         if (verbose) cout << endl
                           << "s_Undefined" << endl

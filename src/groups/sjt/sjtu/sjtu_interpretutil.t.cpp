@@ -2,8 +2,15 @@
 
 #include <sjtu_interpretutil.h>
 
+
+#include <bdlma_sequentialallocator.h>
 #include <bdls_testutil.h>
-#include <bdlma_localsequentialallocator.h>
+
+#include <bsl_vector.h>
+
+#include <sjtt_bytecode.h>
+#include <sjtt_executioncontext.h>
+#include <sjtu_datumutil.h>
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -54,6 +61,14 @@ void aSsErT(bool condition, const char *message, int line)
 #define L_           BDLS_TESTUTIL_L_  // current Line number
 
 
+namespace {
+    void testExecute(const sjtt::ExecutionContext& context) {
+        ASSERT(1 == context.stack()->size());
+        ASSERT(bdld::Datum::createDouble(1.0) == (*context.stack())[0]);
+        context.stack()->push_back(bdld::Datum::createInteger(2));
+    }
+}
+
 // ============================================================================
 //                               MAIN PROGRAM
 // ----------------------------------------------------------------------------
@@ -66,8 +81,63 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
+    // TODO: need to set up a DSEL for this.
+
     switch (test) { case 0:
+      case 3: {
+        if (verbose) cout << endl
+                          << "execute" << endl
+                          << "=========" << endl;
+
+        bdlma::SequentialAllocator alloc;
+        bsl::vector<sjtt::Bytecode> code;
+        code.push_back(sjtt::Bytecode::createPush(
+                                              bdld::Datum::createDouble(1.0)));
+        code.push_back(sjtt::Bytecode::createPush(
+                           DatumUtil::datumFromExternalFunction(testExecute)));
+        code.push_back(sjtt::Bytecode::createOpcode(sjtt::Bytecode::e_Execute));
+        code.push_back(sjtt::Bytecode::createOpcode(sjtt::Bytecode::e_Return));
+        const bdld::Datum result = InterpretUtil::interpretBytecode(
+                                                                  &alloc,
+                                                                  &code[0],
+                                                                  code.size());
+        ASSERT(bdld::Datum::createInteger(2) == result);
+      } break;
+      case 2: {
+        if (verbose) cout << endl
+                          << "add doubles" << endl
+                          << "=========" << endl;
+
+        bdlma::SequentialAllocator alloc;
+        bsl::vector<sjtt::Bytecode> code;
+        code.push_back(sjtt::Bytecode::createPush(
+                                              bdld::Datum::createDouble(3.0)));
+        code.push_back(sjtt::Bytecode::createPush(
+                                              bdld::Datum::createDouble(1.0)));
+        code.push_back(sjtt::Bytecode::createOpcode(
+                                                sjtt::Bytecode::e_AddDoubles));
+        code.push_back(sjtt::Bytecode::createOpcode(sjtt::Bytecode::e_Return));
+        const bdld::Datum result = InterpretUtil::interpretBytecode(
+                                                                  &alloc,
+                                                                  &code[0],
+                                                                  code.size());
+        ASSERT(bdld::Datum::createDouble(4.0) == result);
+      } break;
       case 1: {
+        if (verbose) cout << endl
+                          << "push and return" << endl
+                          << "=========" << endl;
+
+        bdlma::SequentialAllocator alloc;
+        bsl::vector<sjtt::Bytecode> code;
+        const bdld::Datum value = bdld::Datum::createInteger(3);
+        code.push_back(sjtt::Bytecode::createPush(value));
+        code.push_back(sjtt::Bytecode::createOpcode(sjtt::Bytecode::e_Return));
+        const bdld::Datum result = InterpretUtil::interpretBytecode(
+                                                                  &alloc,
+                                                                  &code[0],
+                                                                  code.size());
+        ASSERT(value == result);
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

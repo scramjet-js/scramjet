@@ -17,7 +17,7 @@ struct DatumUtil {
 
     // TYPES
     typedef BloombergLP::bdld::Datum Datum;
-    typedef void (* ExternalFunction)(sjtt::ExecutionContext *context);
+    typedef void (* ExternalFunction)(const sjtt::ExecutionContext& context);
 
     enum UdtCode {
         // Enumeration used to describe the types of values used in the UDT
@@ -36,7 +36,50 @@ struct DatumUtil {
     // CLASS DATA
     static const Datum s_Null;         // 'Datum::creaetNull'
     static const Datum s_Undefined;    // 'Datum::createUdt(0, d_Undefined)`
+
+    // CLASS METHODS
+    static bool isExternalFunction(const Datum& value);
+        // Return true if the specified 'value' contains an 'ExternalFunction'
+        // and false otherwise.
+
+    static ExternalFunction getExternalFunction(const Datum& value);
+        // Return the 'ExternalFunction' in th specified 'value'.  The behavior
+        // is undfined unless 'true == isExternalFunction(value)'.
+
+    static Datum datumFromExternalFunction(ExternalFunction function);
+        // Return a new `Datum` object containing the specified `function`.
 };
+
+// ============================================================================
+//                             INLINE DEFINITIONS
+// ============================================================================
+
+                              // ---------------
+                              // class DatumUtil
+                              // ---------------
+
+inline
+bool DatumUtil::isExternalFunction(const Datum& value) {
+    return value.isUdt() && value.theUdt().type() == e_ExternalFunction;
+}
+
+inline
+DatumUtil::ExternalFunction
+DatumUtil::getExternalFunction(const Datum& value) {
+    BSLS_ASSERT(DatumUtil::isExternalFunction(value));
+    // Note that casing from data to function pointer is theoretically
+    // non-portable, but doees work on every (non-theoretical) modern platform.
+
+    return reinterpret_cast<ExternalFunction>(value.theUdt().data());
+}
+
+inline
+DatumUtil::Datum
+DatumUtil::datumFromExternalFunction(ExternalFunction function) {
+    BSLS_ASSERT(0 != function);
+    return Datum::createUdt(reinterpret_cast<void *>(function),
+                            e_ExternalFunction);
+}
 }
 
 #endif
