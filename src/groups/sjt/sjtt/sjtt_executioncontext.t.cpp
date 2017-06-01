@@ -72,10 +72,10 @@ int main(int argc, char *argv[])
                           << "=============" << endl;
 
         bdlma::LocalSequentialAllocator<256> alloc;
-        bsl::vector<bdld::Datum> v;
-        sjtt::ExecutionContext context(&alloc, &v);
+        sjtt::ExecutionContext context(&alloc, 0, 0);
         ASSERT(&alloc == context.allocator());
-        ASSERT(&v == context.stack());
+        ASSERT(0 == context.args());
+        ASSERT(0 == context.numArgs());
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

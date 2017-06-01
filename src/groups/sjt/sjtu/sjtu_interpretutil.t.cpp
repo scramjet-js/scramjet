@@ -62,10 +62,13 @@ void aSsErT(bool condition, const char *message, int line)
 
 
 namespace {
-    void testExecute(const sjtt::ExecutionContext& context) {
-        ASSERT(1 == context.stack()->size());
-        ASSERT(bdld::Datum::createDouble(1.0) == (*context.stack())[0]);
-        context.stack()->push_back(bdld::Datum::createInteger(2));
+    bdld::Datum testExecute(const sjtt::ExecutionContext& context) {
+        double result = 0;
+        for (int i = 0; i < context.numArgs(); ++i) {
+            const bdld::Datum& arg = context.args()[i];
+            result += arg.theDouble();
+        }
+        return bdld::Datum::createDouble(result);
     }
 }
 
@@ -89,19 +92,60 @@ int main(int argc, char *argv[])
                           << "execute" << endl
                           << "=========" << endl;
 
+        // This loop is meant to test that the execute logic:
+        // 1. works for 0 args
+        // 2. works for 1 arg
+        // 3. works for > 1 args
+        // 4. leaves the stack in the right place after evaluation
+
         bdlma::SequentialAllocator alloc;
-        bsl::vector<sjtt::Bytecode> code;
-        code.push_back(sjtt::Bytecode::createPush(
-                                              bdld::Datum::createDouble(1.0)));
-        code.push_back(sjtt::Bytecode::createPush(
-                           DatumUtil::datumFromExternalFunction(testExecute)));
-        code.push_back(sjtt::Bytecode::createOpcode(sjtt::Bytecode::e_Execute));
-        code.push_back(sjtt::Bytecode::createOpcode(sjtt::Bytecode::e_Return));
-        const bdld::Datum result = InterpretUtil::interpretBytecode(
+
+        for (int i = 0; i < 3; ++i) {
+            bsl::vector<sjtt::Bytecode> code;
+
+            // Base value, so we always add at least one
+
+            code.push_back(sjtt::Bytecode::createPush(
+                                                bdld::Datum::createDouble(1)));
+
+            // The arguments for the function to execute
+
+            for (int j = 0; j < i; ++j) {
+                code.push_back(sjtt::Bytecode::createPush(
+                                                bdld::Datum::createDouble(2)));
+            }
+
+            // push the number of arguments
+
+            code.push_back(sjtt::Bytecode::createPush(
+                                               bdld::Datum::createInteger(i)));
+
+            // the function to execute
+
+            code.push_back(sjtt::Bytecode::createPush(
+                     sjtu::DatumUtil::datumFromExternalFunction(testExecute)));
+
+            // execute it
+
+            code.push_back(sjtt::Bytecode::createOpcode(
+                                                   sjtt::Bytecode::e_Execute));
+
+            // add the base 1 to the result
+
+            code.push_back(sjtt::Bytecode::createOpcode(
+                                                sjtt::Bytecode::e_AddDoubles));
+
+            // return it
+
+            code.push_back(sjtt::Bytecode::createOpcode(
+                                                    sjtt::Bytecode::e_Return));
+            const bdld::Datum result = InterpretUtil::interpretBytecode(
                                                                   &alloc,
                                                                   &code[0],
                                                                   code.size());
-        ASSERT(bdld::Datum::createInteger(2) == result);
+            const bdld::Datum expected = bdld::Datum::createDouble(1 + i * 2);
+            LOOP_ASSERT(i, expected == result);
+        }
       } break;
       case 2: {
         if (verbose) cout << endl

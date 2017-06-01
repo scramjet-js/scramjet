@@ -55,7 +55,8 @@ void aSsErT(bool condition, const char *message, int line)
 
 
 namespace {
-    void testExternalFunction(const sjtt::ExecutionContext&) {
+    bdld::Datum testExternalFunction(const sjtt::ExecutionContext&) {
+        return bdld::Datum::createNull();
     }
 }
 

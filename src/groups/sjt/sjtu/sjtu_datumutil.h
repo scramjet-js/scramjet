@@ -17,7 +17,7 @@ struct DatumUtil {
 
     // TYPES
     typedef BloombergLP::bdld::Datum Datum;
-    typedef void (* ExternalFunction)(const sjtt::ExecutionContext& context);
+    typedef Datum (* ExternalFunction)(const sjtt::ExecutionContext& context);
 
     enum UdtCode {
         // Enumeration used to describe the types of values used in the UDT

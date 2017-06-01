@@ -5,6 +5,7 @@
 
 #include <bsl_iostream.h>
 #include <bsl_vector.h>
+#include <bsls_assert.h>
 
 #include <sjtt_bytecode.h>
 #include <sjtt_executioncontext.h>
@@ -45,11 +46,19 @@ InterpretUtil::interpretBytecode(Allocator            *allocator,
           } break;
           case sjtt::Bytecode::e_Execute: {
             BSLS_ASSERT(!stack.empty());
-            BSLS_ASSERT(stack.back().isUdt());
+            BSLS_ASSERT(DatumUtil::isExternalFunction(stack.back()));
             const DatumUtil::ExternalFunction f =
                                   DatumUtil::getExternalFunction(stack.back());
             stack.pop_back();
-            f(sjtt::ExecutionContext(&tempAlloc, &stack));
+            BSLS_ASSERT(stack.back().isInteger());
+            const int numArgs = stack.back().theInteger();
+            stack.pop_back();
+            const Datum *end = stack.end();
+            const Datum *firstArg = end - numArgs;
+            const Datum result =
+                      f(sjtt::ExecutionContext(&tempAlloc, firstArg, numArgs));
+            stack.erase(firstArg, end);
+            stack.push_back(result);
           } break;
           case sjtt::Bytecode::e_Return: {
             BSLS_ASSERT(!stack.empty());
