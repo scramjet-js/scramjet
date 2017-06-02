@@ -87,6 +87,30 @@ int main(int argc, char *argv[])
     // TODO: need to set up a DSEL for this.
 
     switch (test) { case 0:
+      case 5: {
+        if (verbose) cout << endl
+                          << "jump" << endl
+                          << "====" << endl;
+        bdlma::SequentialAllocator alloc;
+        bsl::vector<sjtt::Bytecode> code;
+        code.push_back(sjtt::Bytecode::createOpcode(
+                                               sjtt::Bytecode::e_Jump,
+                                               bdld::Datum::createInteger(3)));
+         code.push_back(sjtt::Bytecode::createOpcode(
+                                               sjtt::Bytecode::e_Push,
+                                               bdld::Datum::createInteger(1)));
+        code.push_back(sjtt::Bytecode::createOpcode(sjtt::Bytecode::e_Return));
+        code.push_back(sjtt::Bytecode::createOpcode(
+                                               sjtt::Bytecode::e_Push,
+                                               bdld::Datum::createInteger(3)));
+        code.push_back(sjtt::Bytecode::createOpcode(sjtt::Bytecode::e_Return));
+
+        const bdld::Datum result = InterpretUtil::interpretBytecode(
+                                                                  &alloc,
+                                                                  &code[0],
+                                                                  code.size());
+        ASSERT(bdld::Datum::createInteger(3) == result);
+      } break;
       case 4: {
         if (verbose) cout << endl
                           << "load and store" << endl

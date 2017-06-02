@@ -54,6 +54,10 @@ class Bytecode {
             // Pop the value from the top of the stack and store it into the
             // index specified by the integer value stored in this object.
 
+        e_Jump,
+            // Jump to the bytecode at the index specified in the integer of
+            // the data stored in this object.
+
         e_AddDoubles,
             // Pop the top two arguments on the stack, add them, and push
             // the result.

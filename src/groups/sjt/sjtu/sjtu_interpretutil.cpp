@@ -30,8 +30,9 @@ InterpretUtil::interpretBytecode(Allocator            *allocator,
     int i = 0;
 #endif
 
+    const sjtt::Bytecode *pc = firstCode;
     while (true) {
-        const sjtt::Bytecode& code = *firstCode;
+        const sjtt::Bytecode& code = *pc;
         switch (code.opcode()) {
 
           case sjtt::Bytecode::e_Push: {
@@ -40,6 +41,7 @@ InterpretUtil::interpretBytecode(Allocator            *allocator,
           } break;
 
           case sjtt::Bytecode::e_Load: {
+
             BSLS_ASSERT(code.data().isInteger());
             BSLS_ASSERT(sjtt::Bytecode::s_NumLocals >
                         code.data().theInteger());
@@ -48,11 +50,21 @@ InterpretUtil::interpretBytecode(Allocator            *allocator,
           } break;
 
           case sjtt::Bytecode::e_Store: {
+
             BSLS_ASSERT(code.data().isInteger());
             BSLS_ASSERT(sjtt::Bytecode::s_NumLocals >
                         code.data().theInteger());
             locals[code.data().theInteger()] = stack.back();
             stack.pop_back();
+          } break;
+
+          case sjtt::Bytecode::e_Jump: {
+
+            BSLS_ASSERT(code.data().isInteger());
+            BSLS_ASSERT(numCodes > code.data().theInteger());
+
+            pc = firstCode + code.data().theInteger();
+            continue;
           } break;
 
           case sjtt::Bytecode::e_AddDoubles: {
@@ -94,7 +106,7 @@ InterpretUtil::interpretBytecode(Allocator            *allocator,
             return stack.back().clone(allocator);
           } break;
         }
-        ++firstCode;
+        ++pc;
         BSLS_ASSERT(++i < numCodes);
     }
 }
