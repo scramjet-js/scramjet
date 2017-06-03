@@ -99,7 +99,7 @@ InterpretUtil::interpretBytecode(Allocator            *allocator,
             stack.push_back(result);
           } break;
 
-          case sjtt::Bytecode::e_Return: {
+          case sjtt::Bytecode::e_Exit: {
 
             BSLS_ASSERT(!stack.empty());
 

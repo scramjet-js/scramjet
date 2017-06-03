@@ -99,11 +99,11 @@ int main(int argc, char *argv[])
          code.push_back(sjtt::Bytecode::createOpcode(
                                                sjtt::Bytecode::e_Push,
                                                bdld::Datum::createInteger(1)));
-        code.push_back(sjtt::Bytecode::createOpcode(sjtt::Bytecode::e_Return));
+        code.push_back(sjtt::Bytecode::createOpcode(sjtt::Bytecode::e_Exit));
         code.push_back(sjtt::Bytecode::createOpcode(
                                                sjtt::Bytecode::e_Push,
                                                bdld::Datum::createInteger(3)));
-        code.push_back(sjtt::Bytecode::createOpcode(sjtt::Bytecode::e_Return));
+        code.push_back(sjtt::Bytecode::createOpcode(sjtt::Bytecode::e_Exit));
 
         const bdld::Datum result = InterpretUtil::interpretBytecode(
                                                                   &alloc,
@@ -136,7 +136,7 @@ int main(int argc, char *argv[])
         code.push_back(sjtt::Bytecode::createOpcode(
                                                sjtt::Bytecode::e_Load,
                                                bdld::Datum::createInteger(3)));
-        code.push_back(sjtt::Bytecode::createOpcode(sjtt::Bytecode::e_Return));
+        code.push_back(sjtt::Bytecode::createOpcode(sjtt::Bytecode::e_Exit));
         const bdld::Datum result = InterpretUtil::interpretBytecode(
                                                                   &alloc,
                                                                   &code[0],
@@ -199,7 +199,7 @@ int main(int argc, char *argv[])
             // return it
 
             code.push_back(sjtt::Bytecode::createOpcode(
-                                                    sjtt::Bytecode::e_Return));
+                                                    sjtt::Bytecode::e_Exit));
             const bdld::Datum result = InterpretUtil::interpretBytecode(
                                                                   &alloc,
                                                                   &code[0],
@@ -223,7 +223,7 @@ int main(int argc, char *argv[])
                                               bdld::Datum::createDouble(1.0)));
         code.push_back(sjtt::Bytecode::createOpcode(
                                                 sjtt::Bytecode::e_AddDoubles));
-        code.push_back(sjtt::Bytecode::createOpcode(sjtt::Bytecode::e_Return));
+        code.push_back(sjtt::Bytecode::createOpcode(sjtt::Bytecode::e_Exit));
         const bdld::Datum result = InterpretUtil::interpretBytecode(
                                                                   &alloc,
                                                                   &code[0],
@@ -240,7 +240,7 @@ int main(int argc, char *argv[])
         const bdld::Datum value = bdld::Datum::createInteger(3);
         code.push_back(sjtt::Bytecode::createOpcode(sjtt::Bytecode::e_Push,
                                                     value));
-        code.push_back(sjtt::Bytecode::createOpcode(sjtt::Bytecode::e_Return));
+        code.push_back(sjtt::Bytecode::createOpcode(sjtt::Bytecode::e_Exit));
         const bdld::Datum result = InterpretUtil::interpretBytecode(
                                                                   &alloc,
                                                                   &code[0],

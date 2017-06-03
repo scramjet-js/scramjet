@@ -25,7 +25,7 @@ struct InterpretUtil {
                                    const sjtt::Bytecode *firstCode,
                                    int                   numCodes);
         // Evaluate the specified 'numCodes' byte 'codes' and return the result
-        // after evaluating an 'e_Return' code, using the specified 'allocator'
+        // after evaluating an 'e_Exit' code, using the specified 'allocator'
         // to allocate memory.  The behavior is undefined if the codes cannot
         // be evaluated e.g., if the interpreter is directed to execute a
         // non-function, or the interpreter would be directed to execute a code

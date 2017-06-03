@@ -65,7 +65,7 @@ class Bytecode {
         e_Execute,
              // pop and evaluate the item at the top of the stack
 
-        e_Return
+        e_Exit
             // stop evaluation and return the value on the top of the stack
     };
 
