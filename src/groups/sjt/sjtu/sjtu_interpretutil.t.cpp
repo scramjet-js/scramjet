@@ -8,9 +8,9 @@
 
 #include <bsl_vector.h>
 
+#include <sjtm_datumfactory.h>
 #include <sjtt_bytecode.h>
 #include <sjtt_executioncontext.h>
-#include <sjtu_datumutil.h>
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -92,18 +92,16 @@ int main(int argc, char *argv[])
                           << "return" << endl
                           << "=====" << endl;
         bdlma::SequentialAllocator alloc;
+        const sjtm::DatumFactory f(&alloc);
         bsl::vector<sjtt::Bytecode> code;
-        code.push_back(sjtt::Bytecode::createOpcode(
-                                               sjtt::Bytecode::e_Push,
-                                               bdld::Datum::createDouble(2)));
-        code.push_back(sjtt::Bytecode::createOpcode(
-                                               sjtt::Bytecode::e_Push,
-                                               bdld::Datum::createInteger(4)));
+        code.push_back(sjtt::Bytecode::createOpcode(sjtt::Bytecode::e_Push,
+                                                    f(2.)));
+        code.push_back(sjtt::Bytecode::createOpcode(sjtt::Bytecode::e_Push,
+                                                    f(4)));
         code.push_back(sjtt::Bytecode::createOpcode(sjtt::Bytecode::e_Return));
         code.push_back(sjtt::Bytecode::createOpcode(sjtt::Bytecode::e_Exit));
-        code.push_back(sjtt::Bytecode::createOpcode(
-                                               sjtt::Bytecode::e_Push,
-                                               bdld::Datum::createDouble(3)));
+        code.push_back(sjtt::Bytecode::createOpcode(sjtt::Bytecode::e_Push,
+                                                    f(3.)));
         code.push_back(sjtt::Bytecode::createOpcode(
                                                 sjtt::Bytecode::e_AddDoubles));
         code.push_back(sjtt::Bytecode::createOpcode(sjtt::Bytecode::e_Exit));
@@ -112,54 +110,50 @@ int main(int argc, char *argv[])
                                                                   &alloc,
                                                                   &code[0],
                                                                   code.size());
-        LOOP_ASSERT(result, bdld::Datum::createDouble(5) == result);
+        LOOP_ASSERT(result, f(5.) == result);
       } break;
       case 6: {
         if (verbose) cout << endl
                           << "gosub" << endl
                           << "=====" << endl;
         bdlma::SequentialAllocator alloc;
+        const sjtm::DatumFactory f(&alloc);
         bsl::vector<sjtt::Bytecode> code;
-        code.push_back(sjtt::Bytecode::createOpcode(
-                                               sjtt::Bytecode::e_Push,
-                                               bdld::Datum::createInteger(8)));
-        code.push_back(sjtt::Bytecode::createOpcode(
-                                               sjtt::Bytecode::e_Gosub,
-                                               bdld::Datum::createInteger(3)));
-        code.push_back(sjtt::Bytecode::createOpcode(
-                                               sjtt::Bytecode::e_Push,
-                                               bdld::Datum::createInteger(7)));
+        code.push_back(sjtt::Bytecode::createOpcode(sjtt::Bytecode::e_Push,
+                                                    f(8)));
+        code.push_back(sjtt::Bytecode::createOpcode(sjtt::Bytecode::e_Gosub,
+                                                    f(3)));
+        code.push_back(sjtt::Bytecode::createOpcode(sjtt::Bytecode::e_Push,
+                                                    f(7)));
         code.push_back(sjtt::Bytecode::createOpcode(sjtt::Bytecode::e_Exit));
 
         const bdld::Datum result = InterpretUtil::interpretBytecode(
                                                                   &alloc,
                                                                   &code[0],
                                                                   code.size());
-        LOOP_ASSERT(result, bdld::Datum::createInteger(2) == result);
+        LOOP_ASSERT(result, f(2) == result);
       } break;
       case 5: {
         if (verbose) cout << endl
                           << "jump" << endl
                           << "====" << endl;
         bdlma::SequentialAllocator alloc;
+        const sjtm::DatumFactory f(&alloc);
         bsl::vector<sjtt::Bytecode> code;
-        code.push_back(sjtt::Bytecode::createOpcode(
-                                               sjtt::Bytecode::e_Jump,
-                                               bdld::Datum::createInteger(3)));
-         code.push_back(sjtt::Bytecode::createOpcode(
-                                               sjtt::Bytecode::e_Push,
-                                               bdld::Datum::createInteger(1)));
+        code.push_back(sjtt::Bytecode::createOpcode(sjtt::Bytecode::e_Jump,
+                                                    f(3)));
+         code.push_back(sjtt::Bytecode::createOpcode(sjtt::Bytecode::e_Push,
+                                                     f(1)));
         code.push_back(sjtt::Bytecode::createOpcode(sjtt::Bytecode::e_Exit));
-        code.push_back(sjtt::Bytecode::createOpcode(
-                                               sjtt::Bytecode::e_Push,
-                                               bdld::Datum::createInteger(3)));
+        code.push_back(sjtt::Bytecode::createOpcode(sjtt::Bytecode::e_Push,
+                                                    f(3)));
         code.push_back(sjtt::Bytecode::createOpcode(sjtt::Bytecode::e_Exit));
 
         const bdld::Datum result = InterpretUtil::interpretBytecode(
                                                                   &alloc,
                                                                   &code[0],
                                                                   code.size());
-        ASSERT(bdld::Datum::createInteger(3) == result);
+        ASSERT(f(3) == result);
       } break;
       case 4: {
         if (verbose) cout << endl
@@ -173,25 +167,22 @@ int main(int argc, char *argv[])
         // 4. return it and verify it's a 1
 
         bdlma::SequentialAllocator alloc;
+        const sjtm::DatumFactory f(&alloc);
         bsl::vector<sjtt::Bytecode> code;
-        code.push_back(sjtt::Bytecode::createOpcode(
-                                               sjtt::Bytecode::e_Push,
-                                               bdld::Datum::createInteger(1)));
-        code.push_back(sjtt::Bytecode::createOpcode(
-                                               sjtt::Bytecode::e_Store,
-                                               bdld::Datum::createInteger(3)));
-        code.push_back(sjtt::Bytecode::createOpcode(
-                                               sjtt::Bytecode::e_Push,
-                                               bdld::Datum::createInteger(2)));
-        code.push_back(sjtt::Bytecode::createOpcode(
-                                               sjtt::Bytecode::e_Load,
-                                               bdld::Datum::createInteger(3)));
+        code.push_back(sjtt::Bytecode::createOpcode(sjtt::Bytecode::e_Push,
+                                                    f(1)));
+        code.push_back(sjtt::Bytecode::createOpcode(sjtt::Bytecode::e_Store,
+                                                    f(3)));
+        code.push_back(sjtt::Bytecode::createOpcode(sjtt::Bytecode::e_Push,
+                                                    f(2)));
+        code.push_back(sjtt::Bytecode::createOpcode(sjtt::Bytecode::e_Load,
+                                                    f(3)));
         code.push_back(sjtt::Bytecode::createOpcode(sjtt::Bytecode::e_Exit));
         const bdld::Datum result = InterpretUtil::interpretBytecode(
                                                                   &alloc,
                                                                   &code[0],
                                                                   code.size());
-        ASSERT(bdld::Datum::createInteger(1) == result);
+        ASSERT(f(1) == result);
       } break;
 
       case 3: {
@@ -206,35 +197,33 @@ int main(int argc, char *argv[])
         // 4. leaves the stack in the right place after evaluation
 
         bdlma::SequentialAllocator alloc;
+        const sjtm::DatumFactory f(&alloc);
 
         for (int i = 0; i < 3; ++i) {
             bsl::vector<sjtt::Bytecode> code;
 
             // Base value, so we always add at least one
 
-            code.push_back(sjtt::Bytecode::createOpcode(
-                                                sjtt::Bytecode::e_Push,
-                                                bdld::Datum::createDouble(1)));
+            code.push_back(sjtt::Bytecode::createOpcode(sjtt::Bytecode::e_Push,
+                                                        f(1.)));
 
             // The arguments for the function to execute
 
             for (int j = 0; j < i; ++j) {
                 code.push_back(sjtt::Bytecode::createOpcode(
-                                                sjtt::Bytecode::e_Push,
-                                                bdld::Datum::createDouble(2)));
+                                                        sjtt::Bytecode::e_Push,
+                                                        f(2.)));
             }
 
             // push the number of arguments
 
-            code.push_back(sjtt::Bytecode::createOpcode(
-                                               sjtt::Bytecode::e_Push,
-                                               bdld::Datum::createInteger(i)));
+            code.push_back(sjtt::Bytecode::createOpcode(sjtt::Bytecode::e_Push,
+                                                        f(i)));
 
             // the function to execute
 
-            code.push_back(sjtt::Bytecode::createOpcode(
-                     sjtt::Bytecode::e_Push,
-                     sjtu::DatumUtil::datumFromExternalFunction(testExecute)));
+            code.push_back(sjtt::Bytecode::createOpcode(sjtt::Bytecode::e_Push,
+                                                        f(testExecute)));
 
             // execute it
 
@@ -254,7 +243,7 @@ int main(int argc, char *argv[])
                                                                   &alloc,
                                                                   &code[0],
                                                                   code.size());
-            const bdld::Datum expected = bdld::Datum::createDouble(1 + i * 2);
+            const bdld::Datum expected = f(1. + i * 2);
             LOOP_ASSERT(i, expected == result);
         }
       } break;
@@ -264,13 +253,12 @@ int main(int argc, char *argv[])
                           << "=========" << endl;
 
         bdlma::SequentialAllocator alloc;
+        const sjtm::DatumFactory f(&alloc);
         bsl::vector<sjtt::Bytecode> code;
-        code.push_back(sjtt::Bytecode::createOpcode(
-                                              sjtt::Bytecode::e_Push,
-                                              bdld::Datum::createDouble(3.0)));
-        code.push_back(sjtt::Bytecode::createOpcode(
-                                              sjtt::Bytecode::e_Push,
-                                              bdld::Datum::createDouble(1.0)));
+        code.push_back(sjtt::Bytecode::createOpcode(sjtt::Bytecode::e_Push,
+                                                    f(3.)));
+        code.push_back(sjtt::Bytecode::createOpcode(sjtt::Bytecode::e_Push,
+                                                    f(1.)));
         code.push_back(sjtt::Bytecode::createOpcode(
                                                 sjtt::Bytecode::e_AddDoubles));
         code.push_back(sjtt::Bytecode::createOpcode(sjtt::Bytecode::e_Exit));
@@ -278,7 +266,7 @@ int main(int argc, char *argv[])
                                                                   &alloc,
                                                                   &code[0],
                                                                   code.size());
-        ASSERT(bdld::Datum::createDouble(4.0) == result);
+        ASSERT(f(4.0) == result);
       } break;
       case 1: {
         if (verbose) cout << endl
@@ -286,8 +274,9 @@ int main(int argc, char *argv[])
                           << "=========" << endl;
 
         bdlma::SequentialAllocator alloc;
+        const sjtm::DatumFactory f(&alloc);
         bsl::vector<sjtt::Bytecode> code;
-        const bdld::Datum value = bdld::Datum::createInteger(3);
+        const bdld::Datum value = f(3);
         code.push_back(sjtt::Bytecode::createOpcode(sjtt::Bytecode::e_Push,
                                                     value));
         code.push_back(sjtt::Bytecode::createOpcode(sjtt::Bytecode::e_Exit));
