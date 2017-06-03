@@ -87,6 +87,56 @@ int main(int argc, char *argv[])
     // TODO: need to set up a DSEL for this.
 
     switch (test) { case 0:
+      case 7: {
+        if (verbose) cout << endl
+                          << "return" << endl
+                          << "=====" << endl;
+        bdlma::SequentialAllocator alloc;
+        bsl::vector<sjtt::Bytecode> code;
+        code.push_back(sjtt::Bytecode::createOpcode(
+                                               sjtt::Bytecode::e_Push,
+                                               bdld::Datum::createDouble(2)));
+        code.push_back(sjtt::Bytecode::createOpcode(
+                                               sjtt::Bytecode::e_Push,
+                                               bdld::Datum::createInteger(4)));
+        code.push_back(sjtt::Bytecode::createOpcode(sjtt::Bytecode::e_Return));
+        code.push_back(sjtt::Bytecode::createOpcode(sjtt::Bytecode::e_Exit));
+        code.push_back(sjtt::Bytecode::createOpcode(
+                                               sjtt::Bytecode::e_Push,
+                                               bdld::Datum::createDouble(3)));
+        code.push_back(sjtt::Bytecode::createOpcode(
+                                                sjtt::Bytecode::e_AddDoubles));
+        code.push_back(sjtt::Bytecode::createOpcode(sjtt::Bytecode::e_Exit));
+
+        const bdld::Datum result = InterpretUtil::interpretBytecode(
+                                                                  &alloc,
+                                                                  &code[0],
+                                                                  code.size());
+        LOOP_ASSERT(result, bdld::Datum::createDouble(5) == result);
+      } break;
+      case 6: {
+        if (verbose) cout << endl
+                          << "gosub" << endl
+                          << "=====" << endl;
+        bdlma::SequentialAllocator alloc;
+        bsl::vector<sjtt::Bytecode> code;
+        code.push_back(sjtt::Bytecode::createOpcode(
+                                               sjtt::Bytecode::e_Push,
+                                               bdld::Datum::createInteger(8)));
+        code.push_back(sjtt::Bytecode::createOpcode(
+                                               sjtt::Bytecode::e_Gosub,
+                                               bdld::Datum::createInteger(3)));
+        code.push_back(sjtt::Bytecode::createOpcode(
+                                               sjtt::Bytecode::e_Push,
+                                               bdld::Datum::createInteger(7)));
+        code.push_back(sjtt::Bytecode::createOpcode(sjtt::Bytecode::e_Exit));
+
+        const bdld::Datum result = InterpretUtil::interpretBytecode(
+                                                                  &alloc,
+                                                                  &code[0],
+                                                                  code.size());
+        LOOP_ASSERT(result, bdld::Datum::createInteger(2) == result);
+      } break;
       case 5: {
         if (verbose) cout << endl
                           << "jump" << endl
@@ -232,7 +282,7 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         if (verbose) cout << endl
-                          << "push and return" << endl
+                          << "push and exit" << endl
                           << "=========" << endl;
 
         bdlma::SequentialAllocator alloc;
