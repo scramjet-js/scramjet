@@ -87,8 +87,8 @@ class Bytecode {
   public:
     // CLASS METHODS
     static Bytecode createOpcode(Opcode opcode);
-        // Return a new 'Bytecode' object having the specified 'opcode' and no
-        // data.
+        // Return a new 'Bytecode' object having the specified 'opcode' and
+        // 'Datum::createNull()' for data.
 
     static Bytecode createOpcode(Opcode opcode, const Datum& data);
         // Return a new 'Bytecode' object having the specified 'opcode' and the
@@ -139,6 +139,7 @@ inline
 Bytecode Bytecode::createOpcode(Opcode opcode) {
     Bytecode result;
     result.d_opcode = opcode;
+    result.d_data = Datum::createNull();
     return result;
 }
 

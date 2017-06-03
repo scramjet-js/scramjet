@@ -67,8 +67,8 @@ int main(int argc, char *argv[])
     switch (test) { case 0:
       case 2: {
         if (verbose) cout << endl
-                          << "createOpcode" << endl
-                          << "======================" << endl;
+                          << "createOpcode(Opcode, Datum)" << endl
+                          << "===========================" << endl;
 
         const bdld::Datum d = bdld::Datum::createInteger(3);
         const Bytecode code = Bytecode::createOpcode(Bytecode::e_Push, d);
@@ -77,11 +77,12 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         if (verbose) cout << endl
-                          << "createOpcode" << endl
-                          << "============" << endl;
+                          << "createOpcode(Opcode)" << endl
+                          << "====================" << endl;
 
         const Bytecode code = Bytecode::createOpcode(Bytecode::e_AddDoubles);
         ASSERT(Bytecode::e_AddDoubles == code.opcode());
+        ASSERT(code.data().isNull());
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
