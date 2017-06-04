@@ -71,7 +71,11 @@ class Bytecode {
             // the result.
 
         e_Execute,
-             // pop and evaluate the item at the top of the stack
+             // Pop the external function from the top of the stack, pop
+             // the integer value containing the number of arguments for the
+             // function, pop that number of values off the stack and invoke
+             // the function with those valuse as arguments.  Push the return
+             // value of the function on the stack.
 
         e_Exit
             // stop evaluation and return the value on the top of the stack
