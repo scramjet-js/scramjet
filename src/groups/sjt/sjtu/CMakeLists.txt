@@ -1,4 +1,9 @@
-add_library(sjtu OBJECT sjtu_datumutil.cpp sjtu_interpretutil.cpp)
+add_library(sjtu OBJECT sjtu_bytecodedslutil.cpp sjtu_datumutil.cpp
+    sjtu_interpretutil.cpp)
+
+add_executable(sjtu_bytecodedslutil.t sjtu_bytecodedslutil.t.cpp)
+target_link_libraries(sjtu_bytecodedslutil.t sjt)
+add_test(sjtu_bytecodedslutil sjtu_bytecodedslutil.t)
 
 add_executable(sjtu_datumutil.t sjtu_datumutil.t.cpp)
 target_link_libraries(sjtu_datumutil.t sjt)
