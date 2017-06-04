@@ -81,6 +81,9 @@ class Bytecode {
         // Maximum number of addressable local variables.
 
   private:
+    // FRIENDS
+    friend bool operator==(const Bytecode& lhs, const Bytecode& rhs);
+
     // DATA
     Datum  d_data;
     Opcode d_opcode;    // operation for this bytecode
@@ -127,6 +130,13 @@ class Bytecode {
         // Return the opcode associated with this object.
 };
 
+// FREE OPERATORS
+bool operator==(const Bytecode& lhs, const Bytecode& rhs);
+    // Return true if the specified 'lhs' and 'rhs' represent the same value.
+    // Two 'Bytecode' objects represnet the same value if they have the same
+    // 'data' and 'opcode'.
+
+
 // ============================================================================
 //                             INLINE DEFINITIONS
 // ============================================================================
@@ -160,6 +170,11 @@ const BloombergLP::bdld::Datum& Bytecode::data() const {
 inline
 Bytecode::Opcode Bytecode::opcode() const {
     return d_opcode;
+}
+
+// FREE OPERATORS
+inline bool operator==(const Bytecode& lhs, const Bytecode& rhs) {
+    return lhs.d_data == rhs.d_data && lhs.d_opcode == rhs.d_opcode;
 }
 }
 

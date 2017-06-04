@@ -65,6 +65,28 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
+      case 3: {
+        if (verbose) cout << endl
+                          << "createOpcode(Opcode, Datum)" << endl
+                          << "===========================" << endl;
+
+        // same
+
+        ASSERT(Bytecode::createOpcode(Bytecode::e_Exit) ==
+               Bytecode::createOpcode(Bytecode::e_Exit));
+
+        // different opcode
+
+        ASSERT(!(Bytecode::createOpcode(Bytecode::e_Exit) ==
+               Bytecode::createOpcode(Bytecode::e_Return)));
+
+        // different data
+
+        ASSERT(!(Bytecode::createOpcode(Bytecode::e_Push,
+                                      bdld::Datum::createNull()) ==
+               Bytecode::createOpcode(Bytecode::e_Push,
+                                      bdld::Datum::createInteger(1))));
+      } break;
       case 2: {
         if (verbose) cout << endl
                           << "createOpcode(Opcode, Datum)" << endl
