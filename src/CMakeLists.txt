@@ -23,6 +23,5 @@ include_directories("ext/bde/groups/bsl/bslma")
 include_directories("ext/bde/thirdparty")
 include_directories("ext/bde/thirdparty/inteldfp/LIBRARY/src")
 
-
 add_subdirectory(apps)
 add_subdirectory(groups)
