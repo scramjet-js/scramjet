@@ -44,6 +44,7 @@ $ ./build-bde.bash
 Subsequently, to build:
 
 ```bash
+$ cd scramjet
 $ cd src
 $ mkdir build     # once
 $ cd build
@@ -51,7 +52,7 @@ $ cmake ..
 $ make
 ```
 
-Then, to run tests (from the `build` directory:
+Then, to run tests (from the `build` directory):
 
 ```bash
 $ ../../tools/test.bash
@@ -60,4 +61,4 @@ $ ../../tools/test.bash
 The following templates are provided:
 
 - `src/groups/sjt` -- sample package group
-- `src/apps/hello` -- sample application using `sjt` and BDE
+- `src/apps/evalbytecode` -- sample evaluating the bytecode DSL
