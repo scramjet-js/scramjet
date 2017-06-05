@@ -73,9 +73,44 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
+      case 8: {
+        if (verbose) cout << endl
+                          << "datumFromCode" << endl
+                          << "=============" << endl;
+
+        const bdld::Datum d = DatumUtil::datumFromCode(0);
+        ASSERT(DatumUtil::isCode(d));
+      } break;
+      case 7: {
+        if (verbose) cout << endl
+                          << "getCode" << endl
+                          << "=======" << endl;
+
+        const bdld::Datum d = bdld::Datum::createUdt(0, DatumUtil::e_Code);
+        ASSERT(0 == DatumUtil::getCode(d));
+      } break;
+      case 6: {
+        if (verbose) cout << endl
+                          << "isCode" << endl
+                          << "======" << endl;
+
+        const bdld::Datum d = bdld::Datum::createUdt(0, DatumUtil::e_Code);
+
+        // Code
+
+        ASSERT(DatumUtil::isCode(d));
+
+        // Udt but not code
+
+        ASSERT(!DatumUtil::isCode(DatumUtil::s_Undefined));
+
+        // not udt
+
+        ASSERT(!DatumUtil::isCode(bdld::Datum::createInteger(3)));
+      } break;
       case 5: {
         if (verbose) cout << endl
-                          << "isExternalFunction" << endl
+                          << "getExternalFunction" << endl
                           << "==================" << endl;
         const bdld::Datum d = DatumUtil::datumFromExternalFunction(
                                                          testExternalFunction);
