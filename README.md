@@ -45,17 +45,24 @@ Subsequently, to build:
 
 ```bash
 $ cd scramjet
-$ cd src
-$ mkdir build     # once
+$ mkdir build
 $ cd build
-$ cmake ..
+$ cmake ../src
 $ make
+```
+
+Or, if you want it to be fast, install ninja and replace the last two lines
+with:
+
+```bash
+$ cmake -GNinja ../src
+$ ninja
 ```
 
 Then, to run tests (from the `build` directory):
 
 ```bash
-$ ../../tools/test.bash
+$ ../tools/test.bash
 ```
 
 The following templates are provided:
