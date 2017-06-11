@@ -3,7 +3,6 @@
 
 #include <bdlma_localsequentialallocator.h>
 
-#include <bsl_iostream.h>
 #include <bsl_vector.h>
 #include <bsls_assert.h>
 
@@ -23,7 +22,7 @@ InterpretUtil::interpretBytecode(Allocator            *allocator,
     BSLS_ASSERT(0 != codes);
 
     bsl::vector<sjtt::Frame> frames;
-    frames.emplace_back(static_cast<const bdld::Datum *>(0), 0, codes);
+    frames.emplace_back(static_cast<const bdld::Datum *>(0), 0, codes, codes);
     sjtt::Frame *frame = &frames.back();
     while (true) {
         const sjtt::Bytecode& code = *frame->pc();
@@ -103,6 +102,7 @@ InterpretUtil::interpretBytecode(Allocator            *allocator,
             const Datum *args = (&frame->stack().back()) - 1;
             frames.emplace_back(args,
                                 argCount,
+                                frame->firstCode(),
                                 frame->firstCode() + code.data().theInteger());
             frame = &frames.back();
             continue;                             // skip past normal increment
@@ -152,6 +152,10 @@ InterpretUtil::interpretBytecode(Allocator            *allocator,
                 // previous call.
 
                 frame->popMany(1 + frame->stack().back().theInteger());
+
+                // push on the return value
+
+                frame->push(value);
             }
           } break;
         }

@@ -108,6 +108,21 @@ int main(int argc, char *argv[])
             { "jump", "J3|Pi1|X|Pi3|X", f(3) },
             { "gosub", "Pi8|G3|Pi7|X", f(2) },
             { "return", "Pd2|Pi4|R|X|Pd3|+d|X", f(5.) },
+            {
+                "call and return, no args",
+                "Pd8|Pi0|C6|+d|X|Pi3|Pd6|X",
+                f(14.)
+            },
+            {
+                "call and return, 2 args, ignored",
+                "Pd8|Pi2|Pi4|Pi2|C8|+d|X|Pi3|Pd6|X",
+                f(14.)
+            },
+            {
+                "call with a jump and return, no args",
+                "Pd8|Pi0|C6|+d|X|Pi3|J8|X|Pd6|X",
+                f(14.)
+            },
         };
         for (int i = 0; i < sizeof(cases) / sizeof(cases[0]); ++i) {
             const Case& c = cases[i];

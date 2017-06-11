@@ -89,7 +89,7 @@ int main(int argc, char *argv[])
                           << "====" << endl;
         bdlma::SequentialAllocator alloc;
         Bytecode code[3];
-        Frame f(0, 0, code, &alloc);
+        Frame f(0, 0, code, code, &alloc);
         f.jump(2);
         BSLS_ASSERT(code == f.firstCode());
         BSLS_ASSERT((code + 2) == f.pc());
@@ -100,9 +100,9 @@ int main(int argc, char *argv[])
                           << "===========" << endl;
         bdlma::SequentialAllocator alloc;
         Bytecode code[3];
-        Frame f(0, 0, code, &alloc);
+        Frame f(0, 0, code, code + 1, &alloc);
         f.incrementPc();
-        BSLS_ASSERT((code + 1) == f.pc());
+        BSLS_ASSERT((code + 2) == f.pc());
       } break;
       case 9: {
         if (verbose) cout << endl
@@ -112,7 +112,7 @@ int main(int argc, char *argv[])
         {
             bdlma::SequentialAllocator alloc;
             Bytecode code = Bytecode::createOpcode(Bytecode::e_Exit);
-            Frame f(0, 0, &code, &alloc);
+            Frame f(0, 0, &code, &code, &alloc);
             f.popMany(0);
             BSLS_ASSERT(bsl::vector<bdld::Datum>() == f.stack());
         }
@@ -121,7 +121,7 @@ int main(int argc, char *argv[])
         {
             bdlma::SequentialAllocator alloc;
             Bytecode code = Bytecode::createOpcode(Bytecode::e_Exit);
-            Frame f(0, 0, &code, &alloc);
+            Frame f(0, 0, &code, &code, &alloc);
             const bdld::Datum d = bdld::Datum::createInteger(9);
             f.push(d);
             f.popMany(1);
@@ -132,7 +132,7 @@ int main(int argc, char *argv[])
         {
             bdlma::SequentialAllocator alloc;
             Bytecode code = Bytecode::createOpcode(Bytecode::e_Exit);
-            Frame f(0, 0, &code, &alloc);
+            Frame f(0, 0, &code, &code, &alloc);
             const bdld::Datum d0 = bdld::Datum::createInteger(9);
             const bdld::Datum d1 = bdld::Datum::createInteger(22);
             f.push(d0);
@@ -145,7 +145,7 @@ int main(int argc, char *argv[])
         {
             bdlma::SequentialAllocator alloc;
             Bytecode code = Bytecode::createOpcode(Bytecode::e_Exit);
-            Frame f(0, 0, &code, &alloc);
+            Frame f(0, 0, &code, &code, &alloc);
             const bdld::Datum d0 = bdld::Datum::createInteger(9);
             const bdld::Datum d1 = bdld::Datum::createInteger(22);
             f.push(d0);
@@ -160,7 +160,7 @@ int main(int argc, char *argv[])
                           << "===" << endl;
         bdlma::SequentialAllocator alloc;
         Bytecode code = Bytecode::createOpcode(Bytecode::e_Exit);
-        Frame f(0, 0, &code, &alloc);
+        Frame f(0, 0, &code, &code, &alloc);
         const bdld::Datum d = bdld::Datum::createInteger(9);
         f.push(d);
         f.pop();
@@ -172,7 +172,7 @@ int main(int argc, char *argv[])
                           << "====" << endl;
         bdlma::SequentialAllocator alloc;
         Bytecode code = Bytecode::createOpcode(Bytecode::e_Exit);
-        Frame f(0, 0, &code, &alloc);
+        Frame f(0, 0, &code, &code, &alloc);
         const bdld::Datum d = bdld::Datum::createInteger(9);
         f.push(d);
         BSLS_ASSERT(bsl::vector<bdld::Datum>(&d, &d + 1) == f.stack());
@@ -187,9 +187,9 @@ int main(int argc, char *argv[])
         bdld::Datum arg2 = bdld::Datum::createInteger(3);
         Bytecode code = Bytecode::createOpcode(Bytecode::e_Exit);
         Bytecode code2 = Bytecode::createOpcode(Bytecode::e_Return);
-        Frame a(&arg, 1, &code, &alloc);
+        Frame a(&arg, 1, &code, &code, &alloc);
         a.setLocal(6, bdld::Datum::createInteger(77));
-        Frame b(&arg2, 1, &code2, &alloc);
+        Frame b(&arg2, 1, &code2, &code, &alloc);
         b = a;
         BSLS_ASSERT(a == b);
       } break;
@@ -205,9 +205,9 @@ int main(int argc, char *argv[])
             bdld::Datum arg2 = bdld::Datum::createInteger(3);
             Bytecode code = Bytecode::createOpcode(Bytecode::e_Exit);
             Bytecode code2 = Bytecode::createOpcode(Bytecode::e_Return);
-            Frame a(&arg, 1, &code, &alloc);
+            Frame a(&arg, 1, &code, &code, &alloc);
             a.setLocal(3, bdld::Datum::createInteger(5));
-            Frame b(&arg2, 1, &code2, &alloc);
+            Frame b(&arg2, 1, &code2, &code2, &alloc);
             Frame aOriginal(a, &alloc);
             Frame bOriginal(b, &alloc);
 
@@ -223,9 +223,9 @@ int main(int argc, char *argv[])
             bdld::Datum arg2 = bdld::Datum::createInteger(3);
             Bytecode code = Bytecode::createOpcode(Bytecode::e_Exit);
             Bytecode code2 = Bytecode::createOpcode(Bytecode::e_Return);
-            Frame a(&arg, 1, &code, &alloc);
+            Frame a(&arg, 1, &code, &code, &alloc);
             a.setLocal(5, bdld::Datum::createInteger(99));
-            Frame b(&arg2, 1, &code2, &alloc);
+            Frame b(&arg2, 1, &code2, &code, &alloc);
             Frame aOriginal(a, &alloc);
             Frame bOriginal(b, &alloc);
 
@@ -242,9 +242,9 @@ int main(int argc, char *argv[])
             bdld::Datum arg2 = bdld::Datum::createInteger(3);
             Bytecode code = Bytecode::createOpcode(Bytecode::e_Exit);
             Bytecode code2 = Bytecode::createOpcode(Bytecode::e_Return);
-            Frame a(&arg, 1, &code, &alloc);
+            Frame a(&arg, 1, &code, &code, &alloc);
             a.setLocal(5, bdld::Datum::createInteger(99));
-            Frame b(&arg2, 1, &code2, &otherAlloc);
+            Frame b(&arg2, 1, &code2, &code2, &otherAlloc);
             Frame aOriginal(a, &alloc);
             Frame bOriginal(b, &alloc);
 
@@ -263,7 +263,7 @@ int main(int argc, char *argv[])
         bdld::Datum arg = bdld::Datum::createNull();
         bdld::Datum loc = bdld::Datum::createInteger(2);
         Bytecode code = Bytecode::createOpcode(Bytecode::e_Exit);
-        Frame a(&arg, 1, &code, &alloc);
+        Frame a(&arg, 1, &code, &code, &alloc);
         a.setLocal(0, bdld::Datum::createInteger(9));
         Frame b(a, &otherAlloc);
         BSLS_ASSERT(a == b);
@@ -281,16 +281,16 @@ int main(int argc, char *argv[])
 
         // same
         {
-            Frame a(&arg, 1, &code, &alloc1);
-            Frame b(&arg, 1, &code, &alloc1);
+            Frame a(&arg, 1, &code, &code, &alloc1);
+            Frame b(&arg, 1, &code, &code, &alloc1);
             BSLS_ASSERT(a == b);
             BSLS_ASSERT(!(a != b));
         }
 
         // diff alloc
         {
-            Frame a(&arg, 1, &code, &alloc1);
-            Frame b(&arg, 1, &code, &alloc2);
+            Frame a(&arg, 1, &code, &code, &alloc1);
+            Frame b(&arg, 1, &code, &code, &alloc2);
             BSLS_ASSERT(a == b);
             BSLS_ASSERT(!(a != b));
         }
@@ -298,22 +298,22 @@ int main(int argc, char *argv[])
         // diff arg
         {
             bdld::Datum arg2 = bdld::Datum::createInteger(5);
-            Frame a(&arg, 1, &code, &alloc1);
-            Frame b(&arg2, 1, &code, &alloc1);
+            Frame a(&arg, 1, &code, &code, &alloc1);
+            Frame b(&arg2, 1, &code, &code, &alloc1);
             BSLS_ASSERT(a != b);
         }
 
         // diff num args
         {
-            Frame a(&arg, 1, &code, &alloc1);
-            Frame b(&arg, 2, &code, &alloc1);
+            Frame a(&arg, 1, &code, &code, &alloc1);
+            Frame b(&arg, 2, &code, &code, &alloc1);
             BSLS_ASSERT(a != b);
         }
 
         // diff locals
         {
-            Frame a(&arg, 1, &code, &alloc1);
-            Frame b(&arg, 1, &code, &alloc1);
+            Frame a(&arg, 1, &code, &code, &alloc1);
+            Frame b(&arg, 1, &code, &code, &alloc1);
             a.setLocal(2, bdld::Datum::createInteger(8));
             BSLS_ASSERT(a != b);
         }
@@ -322,8 +322,8 @@ int main(int argc, char *argv[])
         {
             sjtt::Bytecode code2 =
                         sjtt::Bytecode::createOpcode(sjtt::Bytecode::e_Return);
-            Frame a(&arg, 1, &code, &alloc1);
-            Frame b(&arg, 1, &code2, &alloc1);
+            Frame a(&arg, 1, &code, &code, &alloc1);
+            Frame b(&arg, 1, &code2, &code2, &alloc1);
             BSLS_ASSERT(a != b);
         }
 
@@ -335,7 +335,7 @@ int main(int argc, char *argv[])
         bdlma::SequentialAllocator alloc;
         bdld::Datum loc = bdld::Datum::createInteger(2);
         Bytecode code = Bytecode::createOpcode(Bytecode::e_Exit);
-        Frame f(0, 0, &code, &alloc);
+        Frame f(0, 0, &code, &code, &alloc);
         f.setLocal(0, loc);
         bsl::vector<bdld::Datum> expectedLocals(locals, &alloc);
         expectedLocals[0] = loc;
@@ -351,7 +351,7 @@ int main(int argc, char *argv[])
         bdlma::SequentialAllocator alloc;
         bdld::Datum arg = bdld::Datum::createNull();
         Bytecode code = Bytecode::createOpcode(Bytecode::e_Exit);
-        Frame frame(&arg, 1, &code, &alloc);
+        Frame frame(&arg, 1, &code, &code + 1, &alloc);
         BSLS_ASSERT(&alloc == frame.allocator());
         BSLS_ASSERT(&arg == frame.arguments());
         BSLS_ASSERT(locals ==
@@ -360,7 +360,7 @@ int main(int argc, char *argv[])
                                       frame.locals() + Bytecode::s_NumLocals));
         BSLS_ASSERT(1 == frame.numArguments());
         BSLS_ASSERT(&code == frame.firstCode());
-        BSLS_ASSERT(&code == frame.pc());
+        BSLS_ASSERT(&code + 1 == frame.pc());
         BSLS_ASSERT(frame.stack().empty());
         BSLS_ASSERT(&alloc == frame.stack().get_allocator().mechanism());
       } break;

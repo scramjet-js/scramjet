@@ -67,11 +67,13 @@ class Frame {
     // CREATORS
     Frame(const Datum          *arguments,
           int                   numArguments,
-          const sjtt::Bytecode *code,
+          const sjtt::Bytecode *firstCode,
+          const sjtt::Bytecode *pc,
           Allocator            *allocator);
         // Create a new 'Frame' object using the specified 'allocator' to
         // allocate memory, having the specified 'argumentCount' 'arguments',
-        // to execute the specified 'code', and having
+        // to execute the bytecode that starts at the specified 'firstCode',
+        // beginning with the specified 'pc' program counter, and having
         // 'sjtt::DatumUdtUtil::s_Undefined' as the initial value for all
         // locals.  Note that if '0 == numArgments', 'arguments' may be null.
         // The behavior is undefined unless '0 <= numArgments'.
@@ -166,18 +168,20 @@ bool operator!=(const Frame& lhs, const Frame& rhs);
 inline
 Frame::Frame(const Datum          *arguments,
              int                   numArguments,
-             const sjtt::Bytecode *code,
+             const sjtt::Bytecode *firstCode,
+             const sjtt::Bytecode *pc,
              Allocator            *allocator)
 : d_stack(allocator)
 , d_arguments_p(arguments)
-, d_firstCode_p(code)
-, d_pc_p(code)
+, d_firstCode_p(firstCode)
+, d_pc_p(pc)
 , d_numArguments(numArguments)
 {
     BSLS_ASSERT(0 != allocator);
     BSLS_ASSERT(0 != arguments || 0 == numArguments);
     BSLS_ASSERT(0 <= numArguments);
-    BSLS_ASSERT(0 != code);
+    BSLS_ASSERT(0 != firstCode);
+    BSLS_ASSERT(0 != pc);
     ::memcpy(d_locals, s_DefaultLocals, sizeof(d_locals));
 }
 
