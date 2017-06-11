@@ -56,7 +56,7 @@ void aSsErT(bool condition, const char *message, int line)
 
 namespace {
     bdld::Datum testFun(const sjtt::ExecutionContext& context) {
-        return sjtu::DatumUtil::s_Null;
+        return sjtt::DatumUdtUtil::s_Null;
     }
 }
 
@@ -82,7 +82,7 @@ int main(int argc, char *argv[])
 
         bdlma::SequentialAllocator alloc;
         const DatumFactory f(&alloc);
-        ASSERT(sjtu::DatumUtil::datumFromExternalFunction(testFun) ==
+        ASSERT(sjtt::DatumUdtUtil::datumFromExternalFunction(testFun) ==
                f(testFun));
       } break;
       case 5: {
@@ -110,7 +110,7 @@ int main(int argc, char *argv[])
 
         bdlma::SequentialAllocator alloc;
         const DatumFactory f(&alloc);
-        ASSERT(&sjtu::DatumUtil::s_Null == &f());
+        ASSERT(&sjtt::DatumUdtUtil::s_Null == &f());
       } break;
       case 2: {
         if (verbose) cout << endl
@@ -119,7 +119,7 @@ int main(int argc, char *argv[])
 
         bdlma::SequentialAllocator alloc;
         const DatumFactory f(&alloc);
-        ASSERT(&sjtu::DatumUtil::s_Undefined == &f.u());
+        ASSERT(&sjtt::DatumUdtUtil::s_Undefined == &f.u());
       } break;
       case 1: {
         if (verbose) cout << endl

@@ -1,13 +1,13 @@
-// sjtu_datumutil.t.cpp                                     -*-C++-*-
+// sjtt_datumudtutil.t.cpp                                     -*-C++-*-
 
-#include <sjtu_datumutil.h>
+#include <sjtt_datumudtutil.h>
 
 #include <bdls_testutil.h>
 #include <bdlma_localsequentialallocator.h>
 
 using namespace BloombergLP;
 using namespace bsl;
-using namespace sjtu;
+using namespace sjtt;
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -78,80 +78,80 @@ int main(int argc, char *argv[])
                           << "datumFromCode" << endl
                           << "=============" << endl;
 
-        const bdld::Datum d = DatumUtil::datumFromCode(0);
-        ASSERT(DatumUtil::isCode(d));
+        const bdld::Datum d = DatumUdtUtil::datumFromCode(0);
+        ASSERT(DatumUdtUtil::isCode(d));
       } break;
       case 7: {
         if (verbose) cout << endl
                           << "getCode" << endl
                           << "=======" << endl;
 
-        const bdld::Datum d = bdld::Datum::createUdt(0, DatumUtil::e_Code);
-        ASSERT(0 == DatumUtil::getCode(d));
+        const bdld::Datum d = bdld::Datum::createUdt(0, DatumUdtUtil::e_Code);
+        ASSERT(0 == DatumUdtUtil::getCode(d));
       } break;
       case 6: {
         if (verbose) cout << endl
                           << "isCode" << endl
                           << "======" << endl;
 
-        const bdld::Datum d = bdld::Datum::createUdt(0, DatumUtil::e_Code);
+        const bdld::Datum d = bdld::Datum::createUdt(0, DatumUdtUtil::e_Code);
 
         // Code
 
-        ASSERT(DatumUtil::isCode(d));
+        ASSERT(DatumUdtUtil::isCode(d));
 
         // Udt but not code
 
-        ASSERT(!DatumUtil::isCode(DatumUtil::s_Undefined));
+        ASSERT(!DatumUdtUtil::isCode(DatumUdtUtil::s_Undefined));
 
         // not udt
 
-        ASSERT(!DatumUtil::isCode(bdld::Datum::createInteger(3)));
+        ASSERT(!DatumUdtUtil::isCode(bdld::Datum::createInteger(3)));
       } break;
       case 5: {
         if (verbose) cout << endl
                           << "getExternalFunction" << endl
                           << "==================" << endl;
-        const bdld::Datum d = DatumUtil::datumFromExternalFunction(
+        const bdld::Datum d = DatumUdtUtil::datumFromExternalFunction(
                                                          testExternalFunction);
-        ASSERT(testExternalFunction == DatumUtil::getExternalFunction(d));
+        ASSERT(testExternalFunction == DatumUdtUtil::getExternalFunction(d));
       } break;
       case 4: {
         if (verbose) cout << endl
                           << "isExternalFunction" << endl
                           << "==================" << endl;
         ASSERT(false ==
-               DatumUtil::isExternalFunction(bdld::Datum::createNull()));
+               DatumUdtUtil::isExternalFunction(bdld::Datum::createNull()));
         ASSERT(true ==
-               DatumUtil::isExternalFunction(
-                  DatumUtil::datumFromExternalFunction(testExternalFunction)));
+               DatumUdtUtil::isExternalFunction(
+               DatumUdtUtil::datumFromExternalFunction(testExternalFunction)));
       } break;
       case 3: {
         if (verbose) cout << endl
                           << "datumFromExternalFunction" << endl
                           << "===========" << endl;
-        const bdld::Datum result = DatumUtil::datumFromExternalFunction(
+        const bdld::Datum result = DatumUdtUtil::datumFromExternalFunction(
                                                          testExternalFunction);
         ASSERT(result.isUdt());
         const bdld::DatumUdt udt = result.theUdt();
         ASSERT(testExternalFunction ==
-                    reinterpret_cast<DatumUtil::ExternalFunction>(udt.data()));
+                 reinterpret_cast<DatumUdtUtil::ExternalFunction>(udt.data()));
       } break;
       case 2: {
         if (verbose) cout << endl
                           << "s_Undefined" << endl
                           << "===========" << endl;
         const bdld::Datum undefined = bdld::Datum::createUdt(
-                                                       0,
-                                                       DatumUtil::e_Undefined);
-        ASSERT(undefined  == DatumUtil::s_Undefined);
+                                                    0,
+                                                    DatumUdtUtil::e_Undefined);
+        ASSERT(undefined  == DatumUdtUtil::s_Undefined);
       } break;
       case 1: {
         if (verbose) cout << endl
                           << "s_Null" << endl
                           << "======" << endl;
         const bdld::Datum null = bdld::Datum::createNull();
-        ASSERT(null == DatumUtil::s_Null);
+        ASSERT(null == DatumUdtUtil::s_Null);
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

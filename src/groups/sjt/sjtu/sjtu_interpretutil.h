@@ -22,12 +22,11 @@ struct InterpretUtil {
 
     // CLASS METHODS
     static Datum interpretBytecode(Allocator            *allocator,
-                                   const sjtt::Bytecode *firstCode,
-                                   int                   numCodes);
-        // Evaluate the specified 'numCodes' byte 'codes' and return the result
-        // after evaluating an 'e_Exit' code, using the specified 'allocator'
-        // to allocate memory.  The behavior is undefined if the codes cannot
-        // be evaluated e.g., if the interpreter is directed to execute a
+                                   const sjtt::Bytecode *codes);
+        // Evaluate the specified byte 'codes' and return the result after
+        // evaluating an 'e_Exit' code, using the specified 'allocator' to
+        // allocate memory.  The behavior is undefined if the codes cannot be
+        // evaluated e.g., if the interpreter is directed to execute a
         // non-function, or the interpreter would be directed to execute a code
         // at an index not within the range of valid codes.
 };

@@ -67,7 +67,7 @@ int BytecodeDSLUtil::readDatum(Datum                           *result,
             *errorMessage = "unknown function name '" + name + "'";
             return -1;                                                // RETURN
         }
-        *result = sjtu::DatumUtil::datumFromExternalFunction(i->second);
+        *result = sjtt::DatumUdtUtil::datumFromExternalFunction(i->second);
       } break;
       default: {
         *errorMessage = "unknown datum type '";
@@ -201,6 +201,18 @@ int BytecodeDSLUtil::readDSL(bsl::vector<sjtt::Bytecode>     *result,
               else {
                   result->push_back(sjtt::Bytecode::createOpcode(code));
               }
+          } break;
+          case 'C': {
+              const int addr = parseAddress(next, dsl.end());
+              if (0 > addr) {
+                  bsl::ostringstream txt;
+                  txt << "invalid index for call at position: " << pos;
+                  *errorMessage = txt.str();
+                  return -1;                                          // RETURN
+              }
+              result->push_back(sjtt::Bytecode::createOpcode(
+                                                  sjtt::Bytecode::e_Call,
+                                                  Datum::createInteger(addr)));
           } break;
           case 'E': {
               if (next != end) {

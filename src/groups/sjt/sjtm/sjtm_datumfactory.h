@@ -5,8 +5,8 @@
 #include <bdld_datum.h>
 #endif
 
-#ifndef INCLUDED_SJTU_DATUMUTIL
-#include <sjtu_datumutil.h>
+#ifndef INCLUDED_SJTT_DATUMUDTUTIL
+#include <sjtt_datumudtutil.h>
 #endif
 
 namespace BloombergLP {
@@ -40,10 +40,10 @@ class DatumFactory {
         // Return the allocator associated with this object.
 
     const Datum& u() const;
-        // Return 'sjtu::DatumUtil::s_Undefined'.
+        // Return 'sjtt::DatumUdtUtil::s_Undefined'.
 
     const Datum& operator()() const;
-        // Return 'sjtu::DatumUtil::s_Null'.
+        // Return 'sjtt::DatumUdtUtil::s_Null'.
 
     Datum operator()(int value) const;
         // Return a 'Datum' object having the specified 'value'.
@@ -51,7 +51,7 @@ class DatumFactory {
     Datum operator()(double value) const;
         // Return a 'Datum' object having the specified 'value'.
 
-    Datum operator()(sjtu::DatumUtil::ExternalFunction value) const;
+    Datum operator()(sjtt::DatumUdtUtil::ExternalFunction value) const;
         // Return a 'Datum' object having the specified 'value'.
 };
 
@@ -77,12 +77,12 @@ BloombergLP::bslma::Allocator *DatumFactory::allocator() const {
 
 inline
 const BloombergLP::bdld::Datum& DatumFactory::u() const {
-    return sjtu::DatumUtil::s_Undefined;
+    return sjtt::DatumUdtUtil::s_Undefined;
 }
 
 inline
 const BloombergLP::bdld::Datum& DatumFactory::operator()() const {
-    return sjtu::DatumUtil::s_Null;
+    return sjtt::DatumUdtUtil::s_Null;
 }
 
 inline
@@ -97,8 +97,8 @@ BloombergLP::bdld::Datum DatumFactory::operator()(double value) const {
 
 inline
 BloombergLP::bdld::Datum
-DatumFactory::operator()(sjtu::DatumUtil::ExternalFunction value) const {
-    return sjtu::DatumUtil::datumFromExternalFunction(value);
+DatumFactory::operator()(sjtt::DatumUdtUtil::ExternalFunction value) const {
+    return sjtt::DatumUdtUtil::datumFromExternalFunction(value);
 }
 }
 

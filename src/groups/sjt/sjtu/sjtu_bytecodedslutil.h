@@ -15,8 +15,8 @@
 #include <sjtt_bytecode.h>
 #endif
 
-#ifndef INCLUDED_SJTU_DATUMUTIL
-#include <sjtu_datumutil.h>
+#ifndef INCLUDED_SJTT_DATUMUDTUTIL
+#include <sjtt_datumudtutil.h>
 #endif
 
 namespace sjtu {
@@ -27,7 +27,7 @@ struct BytecodeDSLUtil {
     //
     // DSL           = [<bytecode> ('|' <bytecode>)*]
     // bytecode      = <push> | <load> | <store | <jump> | <gosum> |
-    //                 <return> | <add doubles> | <execute> | <exit>
+    //                 <return> | <add doubles> | <call> | <execute> | <exit>
     // push          = 'P'<datum>
     // load          = 'L'<int>
     // store         = 'S'<int>
@@ -35,6 +35,7 @@ struct BytecodeDSLUtil {
     // gosub         = 'G'<int>
     // return        = 'R'
     // add doubles   = '+d'
+    // call          = 'C'<int>
     // execute       = 'E'
     // exit          = 'X'
     // datum         = 'd'<double> | 'i'<int> | 'e'<external function name>
@@ -53,7 +54,8 @@ struct BytecodeDSLUtil {
     typedef BloombergLP::bslma::Allocator Allocator;   // for convenience
     typedef BloombergLP::bslstl::StringRef StringRef;  // for convenience
 
-    typedef bsl::unordered_map<bsl::string, sjtu::DatumUtil::ExternalFunction>
+    typedef bsl::unordered_map<bsl::string,
+                               sjtt::DatumUdtUtil::ExternalFunction>
             FunctionNameToAddressMap;
         // Describes a map used to associated the names of functions in the DSL
         // with the addresses of actual functions.

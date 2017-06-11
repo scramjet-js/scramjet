@@ -119,9 +119,8 @@ int main(int argc, char *argv[])
                                                      functions);
             LOOP2_ASSERT(c.name, errorMessage, 0 == ret);
             const bdld::Datum result = InterpretUtil::interpretBytecode(
-                                                                  &alloc,
-                                                                  &code[0],
-                                                                  code.size());
+                                                                     &alloc,
+                                                                     &code[0]);
             LOOP2_ASSERT(c.name, result, result == c.expected);
         }
       } break;

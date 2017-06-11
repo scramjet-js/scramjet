@@ -9,35 +9,29 @@
 
 #include <sjtt_bytecode.h>
 #include <sjtt_executioncontext.h>
-#include <sjtu_datumutil.h>
+#include <sjtt_datumudtutil.h>
+#include <sjtt_frame.h>
 
 using namespace BloombergLP;
 
 namespace sjtu {
+
 bdld::Datum
 InterpretUtil::interpretBytecode(Allocator            *allocator,
-                                 const sjtt::Bytecode *firstCode,
-                                 int                   numCodes) {
+                                 const sjtt::Bytecode *codes) {
     BSLS_ASSERT(0 != allocator);
-    BSLS_ASSERT(0 != firstCode || 0 == numCodes);
+    BSLS_ASSERT(0 != codes);
 
-    bdlma::LocalSequentialAllocator<2046> tempAlloc(allocator);
-    bsl::vector<bdld::Datum> stack(&tempAlloc);
-
-    bdld::Datum locals[sjtt::Bytecode::s_NumLocals];
-
-#ifdef BSLS_ASSERT_IS_ACTIVE
-    int i = 0;
-#endif
-
-    const sjtt::Bytecode *pc = firstCode;
+    bsl::vector<sjtt::Frame> frames;
+    frames.emplace_back(static_cast<const bdld::Datum *>(0), 0, codes);
+    sjtt::Frame *frame = &frames.back();
     while (true) {
-        const sjtt::Bytecode& code = *pc;
+        const sjtt::Bytecode& code = *frame->pc();
         switch (code.opcode()) {
 
           case sjtt::Bytecode::e_Push: {
 
-            stack.push_back(code.data());
+            frame->push(code.data());
           } break;
 
           case sjtt::Bytecode::e_Load: {
@@ -46,7 +40,7 @@ InterpretUtil::interpretBytecode(Allocator            *allocator,
             BSLS_ASSERT(sjtt::Bytecode::s_NumLocals >
                         code.data().theInteger());
 
-            stack.push_back(locals[code.data().theInteger()]);
+            frame->push(frame->locals()[code.data().theInteger()]);
           } break;
 
           case sjtt::Bytecode::e_Store: {
@@ -54,82 +48,114 @@ InterpretUtil::interpretBytecode(Allocator            *allocator,
             BSLS_ASSERT(code.data().isInteger());
             BSLS_ASSERT(sjtt::Bytecode::s_NumLocals >
                         code.data().theInteger());
-            locals[code.data().theInteger()] = stack.back();
-            stack.pop_back();
+            frame->setLocal(code.data().theInteger(), frame->stack().back());
+            frame->pop();
           } break;
 
           case sjtt::Bytecode::e_Jump: {
 
             BSLS_ASSERT(code.data().isInteger());
-            BSLS_ASSERT(numCodes > code.data().theInteger());
-
-            pc = firstCode + code.data().theInteger();
+            frame->jump(code.data().theInteger());
             continue;
           } break;
 
           case sjtt::Bytecode::e_Gosub: {
 
             BSLS_ASSERT(code.data().isInteger());
-            BSLS_ASSERT(numCodes > code.data().theInteger());
 
-            const int offset = (pc + 1) - firstCode;
-            stack.push_back(bdld::Datum::createInteger(offset));
-            pc = firstCode + code.data().theInteger();
+            const int offset = (frame->pc() + 1) - frame->firstCode();
+            frame->push(bdld::Datum::createInteger(offset));
+            frame->jump(code.data().theInteger());
             continue;
           } break;
 
           case sjtt::Bytecode::e_Return: {
 
-            BSLS_ASSERT(!stack.empty());
-            BSLS_ASSERT(stack.back().isInteger());
-            BSLS_ASSERT(numCodes > stack.back().theInteger());
+            BSLS_ASSERT(!frame->stack().empty());
+            BSLS_ASSERT(frame->stack().back().isInteger());
 
-            pc = firstCode + stack.back().theInteger();
-            stack.pop_back();
+            frame->jump(frame->stack().back().theInteger());
+            frame->pop();
             continue;
           } break;
 
           case sjtt::Bytecode::e_AddDoubles: {
 
-            BSLS_ASSERT(1 < stack.size());
-            BSLS_ASSERT(stack.back().isDouble());
-            BSLS_ASSERT(stack[stack.size() - 2].isDouble());
+            BSLS_ASSERT(1 < frame->stack().size());
+            BSLS_ASSERT(frame->stack().back().isDouble());
+            BSLS_ASSERT(frame->stack()[frame->stack().size() - 2].isDouble());
 
-            const double l = stack.back().theDouble();
-            stack.pop_back();
-            const double result = l + stack.back().theDouble();
-            stack.pop_back();
-            stack.push_back(bdld::Datum::createDouble(result));
+            const double l = frame->stack().back().theDouble();
+            frame->pop();
+            const double result = l + frame->stack().back().theDouble();
+            frame->pop();
+            frame->push(bdld::Datum::createDouble(result));
+          } break;
+
+          case sjtt::Bytecode::e_Call: {
+            BSLS_ASSERT(!frame->stack().empty());
+            BSLS_ASSERT(frame->stack().back().isInteger());
+            BSLS_ASSERT(frame->stack().size() >
+                        frame->stack().back().theInteger() + 1);
+            BSLS_ASSERT(code.data().isInteger());
+
+            const int argCount = frame->stack().back().theInteger();
+            const Datum *args = (&frame->stack().back()) - 1;
+            frames.emplace_back(args,
+                                argCount,
+                                frame->firstCode() + code.data().theInteger());
+            frame = &frames.back();
+            continue;                             // skip past normal increment
           } break;
 
           case sjtt::Bytecode::e_Execute: {
 
-            BSLS_ASSERT(!stack.empty());
-            BSLS_ASSERT(DatumUtil::isExternalFunction(stack.back()));
+            BSLS_ASSERT(!frame->stack().empty());
+            BSLS_ASSERT(sjtt::DatumUdtUtil::isExternalFunction(
+                                                       frame->stack().back()));
 
-            const DatumUtil::ExternalFunction f =
-                                  DatumUtil::getExternalFunction(stack.back());
-            stack.pop_back();
-            BSLS_ASSERT(stack.back().isInteger());
-            const int numArgs = stack.back().theInteger();
-            stack.pop_back();
-            const Datum *end = stack.end();
+            const sjtt::DatumUdtUtil::ExternalFunction f =
+                sjtt::DatumUdtUtil::getExternalFunction(frame->stack().back());
+            frame->pop();
+            BSLS_ASSERT(frame->stack().back().isInteger());
+            const int numArgs = frame->stack().back().theInteger();
+            frame->pop();
+            const Datum *end = frame->stack().end();
             const Datum *firstArg = end - numArgs;
             const Datum result =
-                      f(sjtt::ExecutionContext(&tempAlloc, firstArg, numArgs));
-            stack.erase(firstArg, end);
-            stack.push_back(result);
+                       f(sjtt::ExecutionContext(allocator, firstArg, numArgs));
+            frame->popMany(numArgs);
+            frame->push(result);
           } break;
 
           case sjtt::Bytecode::e_Exit: {
 
-            BSLS_ASSERT(!stack.empty());
+            BSLS_ASSERT(!frame->stack().empty());
 
-            return stack.back().clone(allocator);
+            const Datum value = frame->stack().back();
+            if (1 == frames.size()) {
+                // If last frame, return the value.
+
+                return value.clone(allocator);                // RETURN
+            }
+            else {
+                // Otherwise, pop the frame and push the last value
+
+                frames.pop_back();
+                frame = &frames.back();
+                BSLS_ASSERT(1 <= frame->stack().size());
+                BSLS_ASSERT(frame->stack().back().isInteger());
+                BSLS_ASSERT((1 + frame->stack().back().theInteger()) <=
+                            frame->stack().size());
+
+                // Pop off the arg count and arguments that were used in the
+                // previous call.
+
+                frame->popMany(1 + frame->stack().back().theInteger());
+            }
           } break;
         }
-        ++pc;
-        BSLS_ASSERT(++i < numCodes);
+        frame->incrementPc();
     }
 }
 }

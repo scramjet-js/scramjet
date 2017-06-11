@@ -35,9 +35,8 @@ int main(int argc, char* argv[]) {
         return 1;
     }
     const bdld::Datum value = sjtu::InterpretUtil::interpretBytecode(
-                                                                 &alloc,
-                                                                 &codes[0],
-                                                                 codes.size());
+                                                                    &alloc,
+                                                                    &codes[0]);
     bsl::cout << value << '\n';
     return 0;
 }

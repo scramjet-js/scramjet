@@ -1,7 +1,7 @@
-// sjtu_datumutil.h
+// sjtu_datumudtutil.h
 
-#ifndef INCLUDED_SJTU_DATUMUTIL
-#define INCLUDED_SJTU_DATUMUTIL
+#ifndef INCLUDED_SJTT_DATUMUDTUTIL
+#define INCLUDED_SJTT_DATUMUDTUTIL
 
 #ifndef INCLUDED_BDLD_DATUM
 #include <bdld_datum.h>
@@ -10,11 +10,11 @@
 namespace sjtt { class ExecutionContext; }
 namespace sjtt { class Bytecode; }
 
-namespace sjtu {
+namespace sjtt {
 
-struct DatumUtil {
-    // This is class provides a namespace for utilities to use 'bdld::Datum'
-    // objects.
+struct DatumUdtUtil {
+    // This is class provides a namespace for utilities to use types
+    // significant to Scramjet with 'bdld::Datum'.
 
     // TYPES
     typedef BloombergLP::bdld::Datum Datum;
@@ -69,35 +69,35 @@ struct DatumUtil {
 // ============================================================================
 
                               // ---------------
-                              // class DatumUtil
+                              // class DatumUdtUtil
                               // ---------------
 
 inline
-bool DatumUtil::isExternalFunction(const Datum& value) {
+bool DatumUdtUtil::isExternalFunction(const Datum& value) {
     return value.isUdt() && value.theUdt().type() == e_ExternalFunction;
 }
 
 inline
-bool DatumUtil::isCode(const Datum& value) {
+bool DatumUdtUtil::isCode(const Datum& value) {
     return value.isUdt() && value.theUdt().type() == e_Code;
 }
 
 inline
-const sjtt::Bytecode *DatumUtil::getCode(const Datum& value) {
+const sjtt::Bytecode *DatumUdtUtil::getCode(const Datum& value) {
     BSLS_ASSERT(isCode(value));
 
     return static_cast<sjtt::Bytecode *>(value.theUdt().data());
 }
 
 inline
-BloombergLP::bdld::Datum DatumUtil::datumFromCode(const sjtt::Bytecode *code) {
+BloombergLP::bdld::Datum DatumUdtUtil::datumFromCode(const sjtt::Bytecode *code) {
     return Datum::createUdt(const_cast<sjtt::Bytecode *>(code), e_Code);
 }
 
 inline
-DatumUtil::ExternalFunction
-DatumUtil::getExternalFunction(const Datum& value) {
-    BSLS_ASSERT(DatumUtil::isExternalFunction(value));
+DatumUdtUtil::ExternalFunction
+DatumUdtUtil::getExternalFunction(const Datum& value) {
+    BSLS_ASSERT(DatumUdtUtil::isExternalFunction(value));
     // Note that casing from data to function pointer is theoretically
     // non-portable, but doees work on every (non-theoretical) modern platform.
 
@@ -105,8 +105,8 @@ DatumUtil::getExternalFunction(const Datum& value) {
 }
 
 inline
-DatumUtil::Datum
-DatumUtil::datumFromExternalFunction(ExternalFunction function) {
+DatumUdtUtil::Datum
+DatumUdtUtil::datumFromExternalFunction(ExternalFunction function) {
     BSLS_ASSERT(0 != function);
     return Datum::createUdt(reinterpret_cast<void *>(function),
                             e_ExternalFunction);
