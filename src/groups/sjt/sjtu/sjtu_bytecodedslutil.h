@@ -26,8 +26,17 @@ struct BytecodeDSLUtil {
     // 'sjtt::Bytecode' from and write 'sjtt::Bytecode' to the following DSL:
     //
     // DSL           = [<bytecode> ('|' <bytecode>)*]
-    // bytecode      = <push> | <load> | <store | <jump> | <gosum> |
-    //                 <return> | <add doubles> | <call> | <execute> | <exit>
+    // bytecode      = <push> |
+    //                 <load> |
+    //                 <store> |
+    //                 <jump> |
+    //                 <gosum> |
+    //                 <return> |
+    //                 <add doubles> |
+    //                 <call> |
+    //                 <execute> |
+    //                 <exit> |
+    //                 <reserve>
     // push          = 'P'<datum>
     // load          = 'L'<int>
     // store         = 'S'<int>
@@ -39,6 +48,7 @@ struct BytecodeDSLUtil {
     // execute       = 'E'
     // exit          = 'X'
     // datum         = 'd'<double> | 'i'<int> | 'e'<external function name>
+    // reserve       = 'V'<int>
     //
     // Example:
     //     "Pd2|Pd3|+d|X"

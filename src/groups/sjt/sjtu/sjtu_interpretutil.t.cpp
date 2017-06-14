@@ -123,6 +123,21 @@ int main(int argc, char *argv[])
                 "Pd8|Pi0|C6|+d|X|Pi3|J8|X|Pd6|X",
                 f(14.)
             },
+            {
+                "call and return, no args, push bad arg intdex",
+                "Pi0|C3|X|L6|X",
+                f.u(),
+            },
+            {
+                "call and return, push an arg",
+                "Pi3|Pi1|C4|X|L0|X",
+                f(3),
+            },
+            {
+                "reserve",
+                "Pi3|V80|Pi4|L79|X",
+                f.u(),
+            },
         };
         for (int i = 0; i < sizeof(cases) / sizeof(cases[0]); ++i) {
             const Case& c = cases[i];

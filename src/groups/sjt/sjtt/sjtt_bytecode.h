@@ -31,6 +31,20 @@ class ExecutionContext;
 class Bytecode {
     // This class is an in-core, value-semantic type describing operations to
     // execution in the Scramjet interpreter.
+    //
+    // # Function invocation
+    //
+    // When the bytecode for a function begins executing, its stack will
+    // initially contain the arguments that were passed to it, along with
+    // enough `DatumUdtUtil::s_Undefined` values so that at least
+    // the stack has at least `s_MinInitialStackSize` elements.
+    //
+    // # Function return
+    //
+    // When an `e_Exit` opcode is encountered, the top of the stack is saved,
+    // all values pertaining to the existing frame are popped off, then the
+    // saved value is pushed back onto the stack as the return value of the
+    // function.
 
   public:
         // Signature for functions provided by the user.
@@ -46,13 +60,14 @@ class Bytecode {
             // Push the data in this opcode on the stack.
 
         e_Load,
-            // Push the value from the local variable stored in the index
-            // specified by the integer value stored in this object  onto the
+            // Push the value from the value stored in the stack in the index
+            // specified by the integer value stored in this object onto the
             // top of the stack.
 
         e_Store,
-            // Pop the value from the top of the stack and store it into the
-            // index specified by the integer value stored in this object.
+            // Pop the value from the top of the stack and store it in the
+            // location in the stack indicated by the index specified by the
+            // integer value stored in this object.
 
         e_Jump,
             // Jump to the bytecode at the index specified in the integer of
@@ -84,16 +99,20 @@ class Bytecode {
              // the function with those valuse as arguments.  Push the return
              // value of the function on the stack.
 
-        e_Exit
+        e_Exit,
             // Stop executing the current frame.  If the current frame is the
             // last one, return the value at the top of the current stack;
             // otherwise, store this value, return to the previous frame, pop,
             // from its stack, the argument count and arguments from its stack,
             // push onto its stack the return value, and resume executing.
+
+        e_Reserve,
+            // Ensure that the stack for the current frame has at least the
+            // number of values stored in the integer of this opcode.
     };
 
-    static const int s_NumLocals = 8;
-        // Maximum number of addressable local variables.
+    static const int s_MinInitialStackSize = 8;
+        // The minimum number of values on the stack when a function starts.
 
   private:
     // FRIENDS

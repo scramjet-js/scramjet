@@ -9,7 +9,7 @@
 namespace sjtu {
 namespace {
 
-int parseAddress(const char *begin, const char *end) {
+int parseInt(const char *begin, const char *end) {
     // Return the integer stored in specified range '[begin, end)', or a value
     // less than zero if no valid address can be found.
 
@@ -17,6 +17,23 @@ int parseAddress(const char *begin, const char *end) {
     bsl::istringstream is(BloombergLP::bslstl::StringRef(begin, end));
     if (is >> result) {
         return result;
+    }
+    return -1;
+}
+
+int parseTwoInts(int        *firstResult,
+                 int        *secondResult,
+                 const char *begin,
+                 const char *end) {
+    // Return the integer values stored in the string in the specified
+    // '[begin, end)' range, load the first into the specified 'firstResult'
+    // and the second into the specified 'secondResult', and return 0.  If the
+    // string does not have the form '<int>,<int>', return a non-zero value.
+
+    char sep;
+    bsl::istringstream is(BloombergLP::bslstl::StringRef(begin, end));
+    if (is >> *firstResult && is >> sep && is >> *secondResult && ',' == sep) {
+        return 0;
     }
     return -1;
 }
@@ -119,7 +136,7 @@ int BytecodeDSLUtil::readDSL(bsl::vector<sjtt::Bytecode>     *result,
             }
           } break;
           case 'L': {
-              const int addr = parseAddress(next, dsl.end());
+              const int addr = parseInt(next, dsl.end());
               if (0 > addr) {
                   bsl::ostringstream txt;
                   txt << "invalid index for load at position: " << pos;
@@ -131,7 +148,7 @@ int BytecodeDSLUtil::readDSL(bsl::vector<sjtt::Bytecode>     *result,
                                                   Datum::createInteger(addr)));
           } break;
           case 'S': {
-              const int addr = parseAddress(next, dsl.end());
+              const int addr = parseInt(next, dsl.end());
               if (0 > addr) {
                   bsl::ostringstream txt;
                   txt << "invalid index for store at position: " << pos;
@@ -143,7 +160,7 @@ int BytecodeDSLUtil::readDSL(bsl::vector<sjtt::Bytecode>     *result,
                                                   Datum::createInteger(addr)));
           } break;
           case 'J': {
-              const int addr = parseAddress(next, dsl.end());
+              const int addr = parseInt(next, dsl.end());
               if (0 > addr) {
                   bsl::ostringstream txt;
                   txt << "invalid index for jump at position: " << pos;
@@ -155,7 +172,7 @@ int BytecodeDSLUtil::readDSL(bsl::vector<sjtt::Bytecode>     *result,
                                                   Datum::createInteger(addr)));
           } break;
           case 'G': {
-              const int addr = parseAddress(next, dsl.end());
+              const int addr = parseInt(next, dsl.end());
               if (0 > addr) {
                   bsl::ostringstream txt;
                   txt << "invalid index for gosub at position: " << pos;
@@ -203,7 +220,7 @@ int BytecodeDSLUtil::readDSL(bsl::vector<sjtt::Bytecode>     *result,
               }
           } break;
           case 'C': {
-              const int addr = parseAddress(next, dsl.end());
+              const int addr = parseInt(next, dsl.end());
               if (0 > addr) {
                   bsl::ostringstream txt;
                   txt << "invalid index for call at position: " << pos;
@@ -235,6 +252,18 @@ int BytecodeDSLUtil::readDSL(bsl::vector<sjtt::Bytecode>     *result,
               result->push_back(sjtt::Bytecode::createOpcode(
                                                       sjtt::Bytecode::e_Exit));
 
+          } break;
+          case 'V': {
+              const int addr = parseInt(next, dsl.end());
+              if (0 > addr) {
+                  bsl::ostringstream txt;
+                  txt << "invalid index for reserve at position: " << pos;
+                  *errorMessage = txt.str();
+                  return -1;                                          // RETURN
+              }
+              result->push_back(sjtt::Bytecode::createOpcode(
+                                                  sjtt::Bytecode::e_Reserve,
+                                                  Datum::createInteger(addr)));
           } break;
           default: {
             bsl::ostringstream txt;

@@ -27,6 +27,10 @@
 #include <sjtt_bytecode.h>
 #endif
 
+#ifndef INCLUDED_SJTT_DATUMUDTUTIL
+#include <sjtt_datumudtutil.h>
+#endif
+
 namespace sjtt {
 
 class Bytecode;
@@ -43,47 +47,33 @@ class Frame {
   public:
     // TYPES
     typedef BloombergLP::bdld::Datum Datum;
-    typedef BloombergLP::bslma::Allocator Allocator;
 
   private:
-    // CLASS DATA
-    static const Datum s_DefaultLocals[Bytecode::s_NumLocals];
-
     // DATA
-    bsl::vector<Datum>    d_stack;
-    Datum                 d_locals[Bytecode::s_NumLocals];
-    const Datum          *d_arguments_p;   // held, not owned
-    const sjtt::Bytecode *d_firstCode_p;
-    const sjtt::Bytecode *d_pc_p;          // held, not owned
-    int                   d_numArguments;
+    const sjtt::Bytecode *d_firstCode_p;       // held, not owned
+    const sjtt::Bytecode *d_pc_p;              // held, not owned
+    int                   d_bottom;
 
   public:
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(Frame,
-                                   BloombergLP::bslma::UsesBslmaAllocator);
-    BSLMF_NESTED_TRAIT_DECLARATION(Frame,
                                    BloombergLP::bslmf::IsBitwiseMoveable);
 
     // CREATORS
-    Frame(const Datum          *arguments,
-          int                   numArguments,
+    Frame(int                   bottom,
           const sjtt::Bytecode *firstCode,
-          const sjtt::Bytecode *pc,
-          Allocator            *allocator);
-        // Create a new 'Frame' object using the specified 'allocator' to
-        // allocate memory, having the specified 'argumentCount' 'arguments',
-        // to execute the bytecode that starts at the specified 'firstCode',
-        // beginning with the specified 'pc' program counter, and having
-        // 'sjtt::DatumUdtUtil::s_Undefined' as the initial value for all
-        // locals.  Note that if '0 == numArgments', 'arguments' may be null.
-        // The behavior is undefined unless '0 <= numArgments'.
+          const sjtt::Bytecode *pc);
+        // Create a new 'Frame' object whose stack begins at the specified
+        // 'bottom' index.  The bytecode from this frame starts at the
+        // specified 'firstCode', beginning with the specified 'pc' program
+        // counter.  The behavior is undefined unless '0 <= bottom'.
 
-    Frame(const Frame& rhs, Allocator *allocator);
+    Frame(const Frame& rhs) = default;
         // Create a new 'Frame' object copied from the specified 'rhs' using
         // the specified 'allocator' to allocate memory.
 
     // MANIPULATORS
-    Frame& operator=(const Frame& rhs);
+    Frame& operator=(const Frame& rhs) = default;
         // Assign to this object the value of the specified 'rhs' object and
         // return a reference to this object.
 
@@ -94,54 +84,45 @@ class Frame {
         // Move the program counter to the position of the specified 'index'.
         // The behavior is undefined unless '0 <= index'.
 
-    void pop();
-        // Pop the top value off of this stack.  The behavior is undefined
-        // unless there is at least one value on the stack.
-
-    void popMany(int count);
-        // Pop the specified 'count' values from the top of the stack.  The
-        // behavior is undefined unless '0 <= count && stackSize() >= count';
-
-    void push(const Datum& value);
-        // Push the specified 'value' on the stack for this frame.
-
-    void setLocal(int index, const Datum& value);
-        // Assign the specified 'value' to the local at the specified 'index'.
-        // The behavior is undefined unless 'Bytecode::s_NumLocals > index'.
-
-    void swap(Frame& other);
-        // Swap contents of this 'Frame' object with the contents of the
-        // specified 'other' 'Frame' object.  The behavior is undefined
-        // unless both the 'Frame' objects are allocated using the same
-
     // ACCESSORS
-    Allocator *allocator() const;
-        // Return the allocator associated with this object.
+    int bottom() const;
+        // Return the bottom of the stack for this frame.
 
-    const Datum* arguments() const;
-        // Return a pointer to the arguments for this frame.
+    const Datum& getValue(const bsl::vector<Datum>& stack,
+                          int                       index) const;
+        // Return the value at the specified 'index' in this frame from the
+        // specified 'stack'.  The behavior is undefined unless
+        // '0 <= index && bottom() + index < stack.size()'.
 
     const sjtt::Bytecode *firstCode() const;
         // Return the address of the first byte code in this frame.
 
-    const Datum *locals() const;
-        // Return the local variables for this frame.
-
-    int numArguments() const;
-        // Return the number of arguments for this frame.
-
     const sjtt::Bytecode *pc() const;
         // Return the program counter for this frame.
 
-    const bsl::vector<Datum>& stack() const;
-        // Return the stack for this frame.
+    void pop(bsl::vector<Datum> *stack) const;
+        // Pop the top value off of the specified 'stack'.  The behavior is
+        // undefined unless 'stack->size() > bottom()'.
+
+    void popMany(bsl::vector<Datum> *stack, int count) const;
+        // Pop the specified 'count' values from the specified 'stack'.
+        // behavior is undefined unless
+        // '0 <= count && stack->size() > (bottom() + count)';
+
+    void reserve(bsl::vector<Datum> *stack, int count) const;
+        // Ensure that the size of the stack for this frame is at least the
+        // specified 'count' elements in the specified 'stack'.  The behavior
+        // is undefined unless 'bottom() <= stack->size() && 0 <= count'.
+
+    void setValue(bsl::vector<Datum> *stack,
+                  int                 index,
+                  const Datum&        value) const;
+        // Assign the specified 'value' to the location at the specified
+        // 'index' in the specified 'stack'.  The behavior is undefined unless
+        // '0 <= index && bottom() + index < stack->size()'.
 };
 
 // FREE OPERATORS
-void swap(Frame& a, Frame& b);
-    // Swap contents of the specified 'a' 'Frame' object with the contents of
-    // the specified 'b' 'Frame' object.
-
 bool operator==(const Frame& lhs, const Frame& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' 'Frame' objects have the
     // same value, and 'false' otherwise.  Two 'Frame' objects have the same
@@ -166,48 +147,16 @@ bool operator!=(const Frame& lhs, const Frame& rhs);
                                 // -----------
 // CREATORS
 inline
-Frame::Frame(const Datum          *arguments,
-             int                   numArguments,
+Frame::Frame(int                   bottom,
              const sjtt::Bytecode *firstCode,
-             const sjtt::Bytecode *pc,
-             Allocator            *allocator)
-: d_stack(allocator)
-, d_arguments_p(arguments)
-, d_firstCode_p(firstCode)
+             const sjtt::Bytecode *pc)
+: d_firstCode_p(firstCode)
 , d_pc_p(pc)
-, d_numArguments(numArguments)
+, d_bottom(bottom)
 {
-    BSLS_ASSERT(0 != allocator);
-    BSLS_ASSERT(0 != arguments || 0 == numArguments);
-    BSLS_ASSERT(0 <= numArguments);
+    BSLS_ASSERT(0 <= bottom);
     BSLS_ASSERT(0 != firstCode);
     BSLS_ASSERT(0 != pc);
-    ::memcpy(d_locals, s_DefaultLocals, sizeof(d_locals));
-}
-
-inline
-Frame::Frame(const Frame& rhs, Allocator *allocator)
-: d_stack(rhs.d_stack, allocator)
-, d_arguments_p(rhs.d_arguments_p)
-, d_firstCode_p(rhs.d_firstCode_p)
-, d_pc_p(rhs.d_pc_p)
-, d_numArguments(rhs.d_numArguments)
-{
-    BSLS_ASSERT(0 != allocator);
-    ::memcpy(d_locals, rhs.d_locals, sizeof(d_locals));
-}
-
-// MANIPULATORS
-inline
-Frame& Frame::operator=(const Frame& rhs)
-{
-    d_stack = rhs.d_stack;
-    d_arguments_p = rhs.d_arguments_p;
-    d_firstCode_p = rhs.d_firstCode_p;
-    d_pc_p = rhs.d_pc_p;
-    d_numArguments = rhs.d_numArguments;
-    ::memcpy(d_locals, rhs.d_locals, sizeof(d_locals));
-    return *this;
 }
 
 inline
@@ -223,62 +172,20 @@ void Frame::jump(int index)
     d_pc_p = d_firstCode_p + index;
 }
 
-inline
-void Frame::pop()
-{
-    BSLS_ASSERT(!d_stack.empty());
-    d_stack.pop_back();
-}
-
-inline
-void Frame::popMany(int count)
-{
-    BSLS_ASSERT(0 <= count && d_stack.size() >= count);
-    d_stack.erase(d_stack.end() - count, d_stack.end());
-}
-
-inline
-void Frame::push(const Datum& value)
-{
-    d_stack.push_back(value);
-}
-
-inline
-void Frame::setLocal(int index, const Datum& value)
-{
-    BSLS_ASSERT(Bytecode::s_NumLocals > index);
-    d_locals[index] = value;
-}
-
-inline
-void Frame::swap(Frame& other)
-{
-    BSLS_ASSERT(allocator() == other.allocator());
-    using bsl::swap;
-    swap(d_arguments_p, other.d_arguments_p);
-    swap(d_stack, other.d_stack);
-
-    Datum tempLocals[Bytecode::s_NumLocals];
-    ::memcpy(tempLocals, d_locals, sizeof(d_locals));
-    ::memcpy(d_locals, other.d_locals, sizeof(d_locals));
-    ::memcpy(other.d_locals, tempLocals, sizeof(d_locals));
-
-    swap(d_firstCode_p, other.d_firstCode_p);
-    swap(d_pc_p, other.d_pc_p);
-    swap(d_numArguments, other.d_numArguments);
-}
-
 // ACCESSORS
 inline
-BloombergLP::bslma::Allocator *Frame::allocator() const
-{
-    return d_stack.get_allocator().mechanism();
+int Frame::bottom() const {
+    return d_bottom;
 }
 
 inline
-const BloombergLP::bdld::Datum* Frame::arguments() const
+const BloombergLP::bdld::Datum& Frame::getValue(
+                                         const bsl::vector<Datum>& stack,
+                                         int                       index) const
 {
-    return d_arguments_p;
+    BSLS_ASSERT(0 <= index);
+    BSLS_ASSERT(d_bottom + index < stack.size());
+    return stack[d_bottom + index];
 }
 
 inline
@@ -288,61 +195,57 @@ const sjtt::Bytecode *Frame::firstCode() const
 }
 
 inline
-const BloombergLP::bdld::Datum *Frame::locals() const
-{
-    return d_locals;
-}
-
-inline
-int Frame::numArguments() const
-{
-    return d_numArguments;
-}
-
-inline
 const sjtt::Bytecode *Frame::pc() const
 {
     return d_pc_p;
 }
 
 inline
-const bsl::vector<BloombergLP::bdld::Datum>& Frame::stack() const
+void Frame::pop(bsl::vector<Datum> *stack) const
 {
-    return d_stack;
+    BSLS_ASSERT(stack->size() > d_bottom);
+    stack->pop_back();
+}
+
+inline
+void Frame::popMany(bsl::vector<Datum> *stack, int count) const
+{
+    BSLS_ASSERT(0 <= count);
+    BSLS_ASSERT(stack->size() >= (d_bottom + count));
+    stack->erase(stack->end() - count, stack->end());
+}
+
+inline
+void Frame::reserve(bsl::vector<Datum> *stack, int count) const
+{
+    BSLS_ASSERT(0 <= count);
+    BSLS_ASSERT(d_bottom <= stack->size());
+    const int currentSize = stack->size() - d_bottom;
+    if (count > currentSize) {
+        stack->insert(stack->end(),
+                      count - currentSize,
+                      sjtt::DatumUdtUtil::s_Undefined);
+    }
+}
+
+inline
+void Frame::setValue(bsl::vector<Datum> *stack,
+                     int                 index,
+                     const Datum&        value) const
+{
+    BSLS_ASSERT(0 <= index);
+    BSLS_ASSERT(d_bottom + index < stack->size());
+    (*stack)[d_bottom + index] = value;
 }
 }  // close package namespace
 
 // FREE OPERATORS
 inline
-void sjtt::swap(Frame& a, Frame& b)
-{
-    if (a.allocator() == b.allocator()) {
-        a.swap(b);
-    }
-    else {
-        Frame tempA(a, b.allocator());
-        Frame tempB(b, a.allocator());
-
-        a.swap(tempB);
-        b.swap(tempA);
-    }
-}
-
-inline
 bool sjtt::operator==(const Frame& lhs, const Frame& rhs)
 {
-    if (lhs.arguments() == rhs.arguments() &&
-        lhs.numArguments() == rhs.numArguments() &&
+    return lhs.firstCode() == rhs.firstCode() &&
         lhs.pc() == rhs.pc() &&
-        lhs.stack() == rhs.stack()) {
-        for (int i = 0; i < Bytecode::s_NumLocals; ++i) {
-            if (lhs.locals()[i] != rhs.locals()[i]) {
-                return false;                                         // RETURN
-            }
-        }
-        return true;
-    }
-    return false;
+        lhs.bottom() == rhs.bottom();
 }
 
 inline

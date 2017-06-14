@@ -21,34 +21,31 @@ InterpretUtil::interpretBytecode(Allocator            *allocator,
     BSLS_ASSERT(0 != allocator);
     BSLS_ASSERT(0 != codes);
 
+    bsl::vector<Datum>       stack;
     bsl::vector<sjtt::Frame> frames;
-    frames.emplace_back(static_cast<const bdld::Datum *>(0), 0, codes, codes);
+    frames.emplace_back(0, codes, codes);
     sjtt::Frame *frame = &frames.back();
+    frame->reserve(&stack, sjtt::Bytecode::s_MinInitialStackSize);
     while (true) {
         const sjtt::Bytecode& code = *frame->pc();
         switch (code.opcode()) {
 
           case sjtt::Bytecode::e_Push: {
 
-            frame->push(code.data());
+            stack.push_back(code.data());
           } break;
 
           case sjtt::Bytecode::e_Load: {
 
             BSLS_ASSERT(code.data().isInteger());
-            BSLS_ASSERT(sjtt::Bytecode::s_NumLocals >
-                        code.data().theInteger());
-
-            frame->push(frame->locals()[code.data().theInteger()]);
+            stack.push_back(frame->getValue(stack, code.data().theInteger()));
           } break;
 
           case sjtt::Bytecode::e_Store: {
 
             BSLS_ASSERT(code.data().isInteger());
-            BSLS_ASSERT(sjtt::Bytecode::s_NumLocals >
-                        code.data().theInteger());
-            frame->setLocal(code.data().theInteger(), frame->stack().back());
-            frame->pop();
+            frame->setValue(&stack, code.data().theInteger(), stack.back());
+            frame->pop(&stack);
           } break;
 
           case sjtt::Bytecode::e_Jump: {
@@ -63,100 +60,106 @@ InterpretUtil::interpretBytecode(Allocator            *allocator,
             BSLS_ASSERT(code.data().isInteger());
 
             const int offset = (frame->pc() + 1) - frame->firstCode();
-            frame->push(bdld::Datum::createInteger(offset));
+            stack.push_back(bdld::Datum::createInteger(offset));
             frame->jump(code.data().theInteger());
             continue;
           } break;
 
           case sjtt::Bytecode::e_Return: {
 
-            BSLS_ASSERT(!frame->stack().empty());
-            BSLS_ASSERT(frame->stack().back().isInteger());
+            BSLS_ASSERT(!stack.empty());
+            BSLS_ASSERT(stack.back().isInteger());
 
-            frame->jump(frame->stack().back().theInteger());
-            frame->pop();
+            frame->jump(stack.back().theInteger());
+            frame->pop(&stack);
             continue;
           } break;
 
           case sjtt::Bytecode::e_AddDoubles: {
 
-            BSLS_ASSERT(1 < frame->stack().size());
-            BSLS_ASSERT(frame->stack().back().isDouble());
-            BSLS_ASSERT(frame->stack()[frame->stack().size() - 2].isDouble());
+            BSLS_ASSERT(1 < stack.size());
+            BSLS_ASSERT(stack.back().isDouble());
+            BSLS_ASSERT(stack[stack.size() - 2].isDouble());
 
-            const double l = frame->stack().back().theDouble();
-            frame->pop();
-            const double result = l + frame->stack().back().theDouble();
-            frame->pop();
-            frame->push(bdld::Datum::createDouble(result));
+            const double l = stack.back().theDouble();
+            frame->pop(&stack);
+            const double result = l + stack.back().theDouble();
+            frame->pop(&stack);
+            stack.push_back(bdld::Datum::createDouble(result));
           } break;
 
           case sjtt::Bytecode::e_Call: {
-            BSLS_ASSERT(!frame->stack().empty());
-            BSLS_ASSERT(frame->stack().back().isInteger());
-            BSLS_ASSERT(frame->stack().size() >
-                        frame->stack().back().theInteger() + 1);
+            BSLS_ASSERT(!stack.empty());
+            BSLS_ASSERT(stack.back().isInteger());
             BSLS_ASSERT(code.data().isInteger());
 
-            const int argCount = frame->stack().back().theInteger();
-            const Datum *args = (&frame->stack().back()) - 1;
-            frames.emplace_back(args,
-                                argCount,
+            const int argCount = stack.back().theInteger();
+            frame->pop(&stack);
+            BSLS_ASSERT(stack.size() >= argCount);
+            BSLS_ASSERT(stack.size() - argCount >= frame->bottom());
+            frames.emplace_back(stack.size() - argCount,
                                 frame->firstCode(),
                                 frame->firstCode() + code.data().theInteger());
             frame = &frames.back();
+            frame->reserve(&stack, sjtt::Bytecode::s_MinInitialStackSize);
             continue;                             // skip past normal increment
           } break;
 
           case sjtt::Bytecode::e_Execute: {
 
-            BSLS_ASSERT(!frame->stack().empty());
-            BSLS_ASSERT(sjtt::DatumUdtUtil::isExternalFunction(
-                                                       frame->stack().back()));
+            BSLS_ASSERT(!stack.empty());
+            BSLS_ASSERT(sjtt::DatumUdtUtil::isExternalFunction(stack.back()));
 
             const sjtt::DatumUdtUtil::ExternalFunction f =
-                sjtt::DatumUdtUtil::getExternalFunction(frame->stack().back());
-            frame->pop();
-            BSLS_ASSERT(frame->stack().back().isInteger());
-            const int numArgs = frame->stack().back().theInteger();
-            frame->pop();
-            const Datum *end = frame->stack().end();
+                         sjtt::DatumUdtUtil::getExternalFunction(stack.back());
+            frame->pop(&stack);
+            BSLS_ASSERT(stack.back().isInteger());
+            const int numArgs = stack.back().theInteger();
+            frame->pop(&stack);
+            const Datum *end = stack.end();
             const Datum *firstArg = end - numArgs;
             const Datum result =
                        f(sjtt::ExecutionContext(allocator, firstArg, numArgs));
-            frame->popMany(numArgs);
-            frame->push(result);
+            frame->popMany(&stack, numArgs);
+            stack.push_back(result);
           } break;
 
           case sjtt::Bytecode::e_Exit: {
 
-            BSLS_ASSERT(!frame->stack().empty());
+            BSLS_ASSERT(!stack.empty());
 
-            const Datum value = frame->stack().back();
+            const Datum value = stack.back();
             if (1 == frames.size()) {
                 // If last frame, return the value.
 
                 return value.clone(allocator);                // RETURN
             }
             else {
-                // Otherwise, pop the frame and push the last value
+
+                // Pop all the values for the current frame off the stack.
+
+                BSLS_ASSERT(stack.size() > frame->bottom());
+
+                // pop back to the bottom of the current frame; this will
+                // remove the arguments pushed on before calling
+
+                stack.erase(stack.begin() + frame->bottom(), stack.end());
+
+                // pop the frame and set the last one as current
 
                 frames.pop_back();
                 frame = &frames.back();
-                BSLS_ASSERT(1 <= frame->stack().size());
-                BSLS_ASSERT(frame->stack().back().isInteger());
-                BSLS_ASSERT((1 + frame->stack().back().theInteger()) <=
-                            frame->stack().size());
-
-                // Pop off the arg count and arguments that were used in the
-                // previous call.
-
-                frame->popMany(1 + frame->stack().back().theInteger());
 
                 // push on the return value
 
-                frame->push(value);
+                stack.push_back(value);
             }
+          } break;
+
+          case sjtt::Bytecode::e_Reserve: {
+            BSLS_ASSERT(code.data().isInteger());
+
+            frame->reserve(&stack, code.data().theInteger());
           } break;
         }
         frame->incrementPc();

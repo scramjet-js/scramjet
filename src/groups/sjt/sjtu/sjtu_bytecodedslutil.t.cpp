@@ -144,10 +144,29 @@ int main(int argc, char *argv[])
             },
             { "bad add", "+", true, {}, "invalid add in position: 0", },
             { "bad add type", "+x", true, {}, "invalid add in position: 0", },
+            { "call", "C8", false, { BC::createOpcode(BC::e_Call, f(8)) } },
+            { "bad call", "Ci", true, {},
+              "invalid index for call at position: 0"
+            },
             { "exec", "E", false, { BC::createOpcode(BC::e_Execute) } },
             { "bad exec", "E8", true, {}, "invalid execute at position: 0" },
             { "exit", "X", false, { BC::createOpcode(BC::e_Exit) } },
             { "bad exit", "X8", true, {}, "invalid exit at position: 0" },
+            {
+                "reserve",
+                "V8",
+                false,
+                { BC::createOpcode(BC::e_Reserve, f(8)) },
+            },
+            {
+                "bad reserve",
+                "Vi",
+                true,
+                {},
+                "invalid index for reserve at position: 0"
+            },
+
+            // combinations
             { "sequence term", "X|", false, { BC::createOpcode(BC::e_Exit) } },
             { "empty second", "X||", true, {},
               "empty bytecode beginning at position: 2" },
