@@ -73,14 +73,6 @@ class Bytecode {
             // Jump to the bytecode at the index specified in the integer of
             // the data stored in this object.
 
-        e_Gosub,
-            // Jump to the bytecode at the index specified in the integer of
-            // the data stored in this object and push the offset of the next
-            // instruction onto the stack.
-
-        e_Return,
-            // Pop an integer address off the stack and jump to it.
-
         e_AddDoubles,
             // Pop the top two arguments on the stack, add them, and push
             // the result.

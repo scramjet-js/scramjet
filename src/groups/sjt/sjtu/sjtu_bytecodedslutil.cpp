@@ -171,28 +171,6 @@ int BytecodeDSLUtil::readDSL(bsl::vector<sjtt::Bytecode>     *result,
                                                   sjtt::Bytecode::e_Jump,
                                                   Datum::createInteger(addr)));
           } break;
-          case 'G': {
-              const int addr = parseInt(next, dsl.end());
-              if (0 > addr) {
-                  bsl::ostringstream txt;
-                  txt << "invalid index for gosub at position: " << pos;
-                  *errorMessage = txt.str();
-                  return -1;                                          // RETURN
-              }
-              result->push_back(sjtt::Bytecode::createOpcode(
-                                                  sjtt::Bytecode::e_Gosub,
-                                                  Datum::createInteger(addr)));
-          } break;
-          case 'R': {
-              if (next != end) {
-                  bsl::ostringstream txt;
-                  txt << "invalid return at position: " << pos;
-                  *errorMessage = txt.str();
-                  return -1;                                          // RETURN
-              }
-              result->push_back(sjtt::Bytecode::createOpcode(
-                                                    sjtt::Bytecode::e_Return));
-          } break;
           case '+': {
               bool good = true;
               sjtt::Bytecode::Opcode code;

@@ -249,7 +249,7 @@ int main(int argc, char *argv[])
                           << "operator== and operator!=" << endl
                           << "=========================" << endl;
         Bytecode code = Bytecode::createOpcode(Bytecode::e_Exit);
-        Bytecode code1 = Bytecode::createOpcode(Bytecode::e_Return);
+        Bytecode code1 = Bytecode::createOpcode(Bytecode::e_Push);
 
         // same
         {
@@ -269,7 +269,7 @@ int main(int argc, char *argv[])
         // diff first code
         {
             sjtt::Bytecode code2 =
-                        sjtt::Bytecode::createOpcode(sjtt::Bytecode::e_Return);
+                        sjtt::Bytecode::createOpcode(sjtt::Bytecode::e_Push);
             Frame a(0, &code, &code1);
             Frame b(0, &code1, &code1);
             ASSERT(a != b);
@@ -278,7 +278,7 @@ int main(int argc, char *argv[])
         // diff pc
         {
             sjtt::Bytecode code2 =
-                        sjtt::Bytecode::createOpcode(sjtt::Bytecode::e_Return);
+                        sjtt::Bytecode::createOpcode(sjtt::Bytecode::e_Push);
             Frame a(0, &code, &code);
             Frame b(0, &code, &code1);
             ASSERT(a != b);

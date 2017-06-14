@@ -55,26 +55,6 @@ InterpretUtil::interpretBytecode(Allocator            *allocator,
             continue;
           } break;
 
-          case sjtt::Bytecode::e_Gosub: {
-
-            BSLS_ASSERT(code.data().isInteger());
-
-            const int offset = (frame->pc() + 1) - frame->firstCode();
-            stack.push_back(bdld::Datum::createInteger(offset));
-            frame->jump(code.data().theInteger());
-            continue;
-          } break;
-
-          case sjtt::Bytecode::e_Return: {
-
-            BSLS_ASSERT(!stack.empty());
-            BSLS_ASSERT(stack.back().isInteger());
-
-            frame->jump(stack.back().theInteger());
-            frame->pop(&stack);
-            continue;
-          } break;
-
           case sjtt::Bytecode::e_AddDoubles: {
 
             BSLS_ASSERT(1 < stack.size());

@@ -129,19 +129,6 @@ int main(int argc, char *argv[])
             { "bad jump", "Ji", true, {},
               "invalid index for jump at position: 0"
             },
-            { "gosub", "G8", false, { BC::createOpcode(BC::e_Gosub, f(8)) } },
-            { "bad gosub", "Gi", true, {},
-              "invalid index for gosub at position: 0"
-            },
-            { "return", "R", false, { BC::createOpcode(BC::e_Return) } },
-            { "bad return", "R8", true, {}, "invalid return at position: 0" },
-            {
-                "add doubles",
-                "+d",
-                false,
-                { BC::createOpcode(BC::e_AddDoubles), },
-                "",
-            },
             { "bad add", "+", true, {}, "invalid add in position: 0", },
             { "bad add type", "+x", true, {}, "invalid add in position: 0", },
             { "call", "C8", false, { BC::createOpcode(BC::e_Call, f(8)) } },

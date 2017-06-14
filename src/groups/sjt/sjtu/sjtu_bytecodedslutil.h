@@ -30,8 +30,6 @@ struct BytecodeDSLUtil {
     //                 <load> |
     //                 <store> |
     //                 <jump> |
-    //                 <gosum> |
-    //                 <return> |
     //                 <add doubles> |
     //                 <call> |
     //                 <execute> |
@@ -41,8 +39,6 @@ struct BytecodeDSLUtil {
     // load          = 'L'<int>
     // store         = 'S'<int>
     // jump          = 'J'<int>
-    // gosub         = 'G'<int>
-    // return        = 'R'
     // add doubles   = '+d'
     // call          = 'C'<int>
     // execute       = 'E'

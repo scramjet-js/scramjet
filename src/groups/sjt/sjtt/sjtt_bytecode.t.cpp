@@ -78,7 +78,7 @@ int main(int argc, char *argv[])
         // different opcode
 
         ASSERT(!(Bytecode::createOpcode(Bytecode::e_Exit) ==
-               Bytecode::createOpcode(Bytecode::e_Return)));
+               Bytecode::createOpcode(Bytecode::e_Push)));
 
         // different data
 
