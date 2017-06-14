@@ -6,6 +6,8 @@
 #include <bslstl_ostringstream.h>
 #include <bslstl_istringstream.h>
 
+using namespace BloombergLP;
+
 namespace sjtu {
 namespace {
 
@@ -14,7 +16,7 @@ int parseInt(const char *begin, const char *end) {
     // less than zero if no valid address can be found.
 
     int result;
-    bsl::istringstream is(BloombergLP::bslstl::StringRef(begin, end));
+    bsl::istringstream is(bslstl::StringRef(begin, end));
     if (is >> result) {
         return result;
     }
@@ -31,7 +33,7 @@ int parseTwoInts(int        *firstResult,
     // string does not have the form '<int>,<int>', return a non-zero value.
 
     char sep;
-    bsl::istringstream is(BloombergLP::bslstl::StringRef(begin, end));
+    bsl::istringstream is(bslstl::StringRef(begin, end));
     if (is >> *firstResult && is >> sep && is >> *secondResult && ',' == sep) {
         return 0;
     }
@@ -47,6 +49,14 @@ int BytecodeDSLUtil::readDatum(Datum                           *result,
     if (0 == source.length()) {
         *errorMessage = "empty datum";
         return -1;                                                    // RETURN
+    }
+    if ("T" == source) {
+        *result = bdld::Datum::createBoolean(true);
+        return 0;                                                     // RETURN
+    }
+    if ("F" == source) {
+        *result = bdld::Datum::createBoolean(false);
+        return 0;                                                     // RETURN
     }
     switch (source[0]) {
       case 'd': {
@@ -169,6 +179,18 @@ int BytecodeDSLUtil::readDSL(bsl::vector<sjtt::Bytecode>     *result,
               }
               result->push_back(sjtt::Bytecode::createOpcode(
                                                   sjtt::Bytecode::e_Jump,
+                                                  Datum::createInteger(addr)));
+          } break;
+          case 'I': {
+              const int addr = parseInt(next, dsl.end());
+              if (0 > addr) {
+                  bsl::ostringstream txt;
+                  txt << "invalid index for if at position: " << pos;
+                  *errorMessage = txt.str();
+                  return -1;                                          // RETURN
+              }
+              result->push_back(sjtt::Bytecode::createOpcode(
+                                                  sjtt::Bytecode::e_If,
                                                   Datum::createInteger(addr)));
           } break;
           case '+': {

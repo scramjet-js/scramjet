@@ -45,6 +45,9 @@ class DatumFactory {
     const Datum& operator()() const;
         // Return 'sjtt::DatumUdtUtil::s_Null'.
 
+    Datum operator()(bool value) const;
+        // Return a 'Datum' object having the specified 'value'.
+
     Datum operator()(int value) const;
         // Return a 'Datum' object having the specified 'value'.
 
@@ -83,6 +86,12 @@ const BloombergLP::bdld::Datum& DatumFactory::u() const {
 inline
 const BloombergLP::bdld::Datum& DatumFactory::operator()() const {
     return sjtt::DatumUdtUtil::s_Null;
+}
+
+inline
+BloombergLP::bdld::Datum DatumFactory::operator()(bool value) const
+{
+    return Datum::createBoolean(value);
 }
 
 inline

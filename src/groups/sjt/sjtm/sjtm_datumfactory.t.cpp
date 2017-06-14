@@ -75,6 +75,16 @@ int main(int argc, char *argv[])
     // TODO: need to set up a DSEL for this.
 
     switch (test) { case 0:
+      case 7: {
+        if (verbose) cout << endl
+                          << "()(bool)" << endl
+                          << "========" << endl;
+
+        bdlma::SequentialAllocator alloc;
+        const DatumFactory f(&alloc);
+        ASSERT(bdld::Datum::createBoolean(true) == f(true));
+        ASSERT(bdld::Datum::createBoolean(false) == f(false));
+      } break;
       case 6: {
         if (verbose) cout << endl
                           << "()(ExternalFunction)" << endl

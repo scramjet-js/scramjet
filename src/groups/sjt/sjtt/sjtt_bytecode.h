@@ -73,6 +73,11 @@ class Bytecode {
             // Jump to the bytecode at the index specified in the integer of
             // the data stored in this object.
 
+        e_If,
+            // If the boolean value on the top of the stack is true, jump to
+            // the offset stored in this code; othewise, proceed to the next
+            // code.
+
         e_AddDoubles,
             // Pop the top two arguments on the stack, add them, and push
             // the result.

@@ -55,6 +55,19 @@ InterpretUtil::interpretBytecode(Allocator            *allocator,
             continue;
           } break;
 
+          case sjtt::Bytecode::e_If: {
+
+            BSLS_ASSERT(code.data().isInteger());
+            BSLS_ASSERT(!stack.empty());
+            BSLS_ASSERT(stack.back().isBoolean());
+            const bool cond = stack.back().theBoolean();
+            frame->pop(&stack);
+            if (cond) {
+                frame->jump(code.data().theInteger());
+                continue;
+            }
+          } break;
+
           case sjtt::Bytecode::e_AddDoubles: {
 
             BSLS_ASSERT(1 < stack.size());

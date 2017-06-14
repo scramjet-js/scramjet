@@ -129,6 +129,10 @@ int main(int argc, char *argv[])
             { "bad jump", "Ji", true, {},
               "invalid index for jump at position: 0"
             },
+            { "if", "I8", false, { BC::createOpcode(BC::e_If, f(8)) } },
+            { "bad if", "Ii", true, {},
+              "invalid index for if at position: 0"
+            },
             { "bad add", "+", true, {}, "invalid add in position: 0", },
             { "bad add type", "+x", true, {}, "invalid add in position: 0", },
             { "call", "C8", false, { BC::createOpcode(BC::e_Call, f(8)) } },
@@ -223,6 +227,8 @@ int main(int argc, char *argv[])
             { "bad fun name", "ebar", true, f(),
                 "unknown function name 'bar'" },
             { "good fun name", "efoo", false, f(testFun), 0 },
+            { "true", "T", false, f(true) },
+            { "false", "F", false, f(false) },
         };
         for (int i = 0; i < (sizeof(cases) / sizeof(cases[0])); ++i) {
             const Case& c = cases[i];

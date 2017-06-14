@@ -106,6 +106,8 @@ int main(int argc, char *argv[])
             { "exec preserving stack", "Pd3|Pi1|Pefoo|E|Pd2|+d|X", f(5.) },
             { "load & store", "Pi1|S3|Pi2|L3|X", f(1) },
             { "jump", "J3|Pi1|X|Pi3|X", f(3) },
+            { "if - true", "PT|I3|X|Pi8|X", f(8) },
+            { "if - false", "PF|I4|Pi2|X|Pi8|X", f(2) },
             {
                 "call and return, 2 args, ignored",
                 "Pd8|Pi2|Pi4|Pi2|C8|+d|X|Pi3|Pd6|X",
