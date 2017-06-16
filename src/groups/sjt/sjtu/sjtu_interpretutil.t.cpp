@@ -100,6 +100,7 @@ int main(int argc, char *argv[])
         } cases[] = {
             { "push and return", "Pi3|X", f(3) },
             { "add doubles", "Pd3|Pd1|+d|X", f(4.) },
+            { "add ints", "Pi3|Pi1|+i|X", f(4) },
             { "eq ints, true", "Pi4|Pi4|=i|X", f(true) },
             { "eq ints, false", "Pi2|Pi4|=i|X", f(false) },
             { "inc int", "Pi3|S0|++i0|L0|X", f(4) },

@@ -181,6 +181,7 @@ int main(int argc, char *argv[])
             { "= ints", "=i", false, { BC::createOpcode(BC::e_EqInts)}},
             { "++int", "++i1", false, { BC::createOpcode(BC::e_IncInt, f(1))}},
             { "+ doubles", "+d", false, { BC::createOpcode(BC::e_AddDoubles)}},
+            { "+ ints", "+i", false, { BC::createOpcode(BC::e_AddInts)}},
             { "call", "C8", false, { BC::createOpcode(BC::e_Call, f(8)) } },
             {
                 "bad call",

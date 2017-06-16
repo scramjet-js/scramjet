@@ -190,6 +190,20 @@ int parseAddDoubles(Bytecode                        *result,
     return 0;
 }
 
+int parseAddInts(Bytecode                        *result,
+                 bsl::string                     *errorMessage,
+                 bslma::Allocator                *alloc,
+                 const StringRef&                 data,
+                 const FunctionNameToAddressMap&  functions)
+{
+    if (!data.empty()) {
+        *errorMessage = "trailing data";
+        return -1;
+    }
+    *result = Bytecode::createOpcode(Bytecode::e_AddInts);
+    return 0;
+}
+
 int parseCall(Bytecode                        *result,
               bsl::string                     *errorMessage,
               bslma::Allocator                *alloc,
@@ -270,6 +284,7 @@ const struct ParserEntry {
     { "I", parseIf },
     { "++i", parseIncInt },
     { "+d", parseAddDoubles },
+    { "+i", parseAddInts },
     { "C", parseCall },
     { "E", parseExecute },
     { "X", parseExit },

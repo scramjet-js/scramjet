@@ -95,6 +95,10 @@ class Bytecode {
             // Pop the top two arguments on the stack, add them, and push
             // the result.
 
+        e_AddInts,
+            // Pop the top two arguments on the stack, add them, and push
+            // the result.
+
         e_Call,
             // The top value on the stack is an integer with the number of
             // arguments for the call. Create, and begin evaluating, a new

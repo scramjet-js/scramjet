@@ -120,6 +120,18 @@ InterpretUtil::interpretBytecode(Allocator            *allocator,
             back = bdld::Datum::createDouble(l + back.theDouble());
           } break;
 
+          case sjtt::Bytecode::e_AddInts: {
+
+            BSLS_ASSERT(stack.size() - frame->bottom() >= 2);
+            BSLS_ASSERT(stack.back().isInteger());
+            BSLS_ASSERT(stack[stack.size() - 2].isInteger());
+
+            const int l = stack.back().theInteger();
+            stack.pop_back();
+            bdld::Datum& back = stack.back();
+            back = bdld::Datum::createInteger(l + back.theInteger());
+          } break;
+
           case sjtt::Bytecode::e_Call: {
             BSLS_ASSERT(stack.size() > frame->bottom());
             BSLS_ASSERT(stack.back().isInteger());
