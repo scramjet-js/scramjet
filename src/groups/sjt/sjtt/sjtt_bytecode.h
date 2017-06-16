@@ -78,6 +78,10 @@ class Bytecode {
             // the offset stored in this code; othewise, proceed to the next
             // code.
 
+        e_IfEqInts,
+            // If the two integers on top of the stack are equal, jump to the
+            // offset stored in this code; otherwise, proceed to the next code.
+
         e_AddDoubles,
             // Pop the top two arguments on the stack, add them, and push
             // the result.

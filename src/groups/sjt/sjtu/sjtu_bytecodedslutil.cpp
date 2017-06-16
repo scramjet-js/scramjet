@@ -130,6 +130,22 @@ int parseIf(Bytecode                        *result,
     return 0;
 }
 
+int parseIfIntsEq(Bytecode                        *result,
+                  bsl::string                     *errorMessage,
+                  bslma::Allocator                *alloc,
+                  const StringRef&                 data,
+                  const FunctionNameToAddressMap&  functions)
+{
+    const int addr = parseInt(data);
+    if (0 > addr) {
+        *errorMessage = "invalid index";
+        return -1;
+    }
+    *result = Bytecode::createOpcode(Bytecode::e_IfEqInts,
+                                     Datum::createInteger(addr));
+    return 0;
+}
+
 int parseAddDoubles(Bytecode                        *result,
                     bsl::string                     *errorMessage,
                     bslma::Allocator                *alloc,
@@ -218,6 +234,7 @@ const struct ParserEntry {
     { "L", parseLoad },
     { "S", parseStore },
     { "J", parseJump },
+    { "I=i", parseIfIntsEq },
     { "I", parseIf },
     { "+d", parseAddDoubles },
     { "C", parseCall },

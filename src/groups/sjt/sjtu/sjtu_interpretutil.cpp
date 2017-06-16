@@ -68,6 +68,22 @@ InterpretUtil::interpretBytecode(Allocator            *allocator,
             }
           } break;
 
+          case sjtt::Bytecode::e_IfEqInts: {
+
+            BSLS_ASSERT(code.data().isInteger());
+            BSLS_ASSERT(2 <= stack.size());
+            BSLS_ASSERT(stack.back().isInteger());
+            const int first = stack.back().theInteger();
+            frame->pop(&stack);
+            BSLS_ASSERT(stack.back().isInteger());
+            const bool cond = stack.back().theInteger() == first;
+            frame->pop(&stack);
+            if (cond) {
+                frame->jump(code.data().theInteger());
+                continue;
+            }
+          } break;
+
           case sjtt::Bytecode::e_AddDoubles: {
 
             BSLS_ASSERT(1 < stack.size());

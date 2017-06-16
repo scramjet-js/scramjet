@@ -164,6 +164,20 @@ int main(int argc, char *argv[])
                 "failed to parse code 'I' from 'i' at position: 0 -- invalid "
                 "index",
             },
+            {
+                "if eq ints",
+                "I=i8",
+                false,
+                { BC::createOpcode(BC::e_IfEqInts, f(8)) }
+            },
+            {
+                "bad if eq ints",
+                "I=ii",
+                true,
+                {},
+                "failed to parse code 'I=i' from 'i' at position: 0 -- "
+                "invalid index",
+            },
             { "+ doubles", "+d", false, { BC::createOpcode(BC::e_AddDoubles)}},
             { "call", "C8", false, { BC::createOpcode(BC::e_Call, f(8)) } },
             {
