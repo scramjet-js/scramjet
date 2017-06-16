@@ -99,7 +99,13 @@ int main(int argc, char *argv[])
             const char                  *errorMessage;
         } cases [] = {
             { "empty", "", false, {}, "" },
-            { "bad code", "'", true, {}, "invalid opcode ''' at position: 0" },
+            {
+                "bad code",
+                "'",
+                true,
+                {},
+                "invalid opcode at position: 0 -- '''",
+            },
             {
                 "push",
                 "Pi2",
@@ -114,35 +120,78 @@ int main(int argc, char *argv[])
                 { BC::createOpcode(BC::e_Push, f(testFun)) },
                 "",
             },
-            { "bad push", "P", true, {},
-              "invalid datum for push at position: 0 -- empty datum",
+            {
+                "bad push",
+                "P",
+                true,
+                {},
+                "failed to parse code 'P' from '' at position: 0 -- invalid "
+                 "datum",
             },
             { "load", "L3", false, { BC::createOpcode(BC::e_Load, f(3)) } },
-            { "bad load", "Lx", true, {},
-              "invalid index for load at position: 0",
+            {
+                "bad load",
+                "Lx",
+                true,
+                {},
+                "failed to parse code 'L' from 'x' at position: 0 -- invalid "
+                "index",
             },
             { "store", "S8", false, { BC::createOpcode(BC::e_Store, f(8)) } },
-            { "bad store", "Si", true, {},
-              "invalid index for store at position: 0",
+            {
+                "bad store",
+                "Si",
+                true,
+                {},
+                "failed to parse code 'S' from 'i' at position: 0 -- invalid "
+                "index",
             },
             { "jump", "J8", false, { BC::createOpcode(BC::e_Jump, f(8)) } },
-            { "bad jump", "Ji", true, {},
-              "invalid index for jump at position: 0"
+            {
+                "bad jump",
+                "Ji",
+                true,
+                {},
+                "failed to parse code 'J' from 'i' at position: 0 -- invalid "
+                "index",
             },
             { "if", "I8", false, { BC::createOpcode(BC::e_If, f(8)) } },
-            { "bad if", "Ii", true, {},
-              "invalid index for if at position: 0"
+            {
+                "bad if",
+                "Ii",
+                true,
+                {},
+                "failed to parse code 'I' from 'i' at position: 0 -- invalid "
+                "index",
             },
-            { "bad add", "+", true, {}, "invalid add in position: 0", },
-            { "bad add type", "+x", true, {}, "invalid add in position: 0", },
+            { "+ doubles", "+d", false, { BC::createOpcode(BC::e_AddDoubles)}},
             { "call", "C8", false, { BC::createOpcode(BC::e_Call, f(8)) } },
-            { "bad call", "Ci", true, {},
-              "invalid index for call at position: 0"
+            {
+                "bad call",
+                "Ci",
+                true,
+                {},
+                "failed to parse code 'C' from 'i' at position: 0 -- invalid "
+                "index",
             },
             { "exec", "E", false, { BC::createOpcode(BC::e_Execute) } },
-            { "bad exec", "E8", true, {}, "invalid execute at position: 0" },
+            {
+                "bad exec",
+                "E8",
+                true,
+                {},
+                "failed to parse code 'E' from '8' at position: 0 -- trailing "
+                "data",
+            },
             { "exit", "X", false, { BC::createOpcode(BC::e_Exit) } },
-            { "bad exit", "X8", true, {}, "invalid exit at position: 0" },
+            {
+                "bad exit",
+                "X8",
+                true,
+                {},
+                "failed to parse code 'X' from '8' at position: 0 -- trailing "
+                "data",
+            },
             {
                 "reserve",
                 "V8",
@@ -154,15 +203,26 @@ int main(int argc, char *argv[])
                 "Vi",
                 true,
                 {},
-                "invalid index for reserve at position: 0"
+                "failed to parse code 'V' from 'i' at position: 0 -- invalid "
+                "index",
             },
 
             // combinations
             { "sequence term", "X|", false, { BC::createOpcode(BC::e_Exit) } },
-            { "empty second", "X||", true, {},
-              "empty bytecode beginning at position: 2" },
-            { "bad second", "X|]", true, {},
-              "invalid opcode ']' at position: 2" },
+            {
+                "empty second",
+                "X||",
+                true,
+                {},
+                "empty bytecode beginning at position: 2"
+            },
+            {
+                "bad second",
+                "X|]",
+                true,
+                {},
+                "invalid opcode at position: 2 -- ']'"
+            },
             {
                 "sequence",
                 "Pd2|Pd4|+d|X",
@@ -191,8 +251,10 @@ int main(int argc, char *argv[])
                              errorMessage == c.errorMessage);
             }
             else {
-                LOOP_ASSERT(c.name, ret == 0);
-                LOOP_ASSERT(c.name, result.size() == c.expected.size());
+                LOOP2_ASSERT(c.name, errorMessage, ret == 0);
+                LOOP2_ASSERT(c.name,
+                             result.size(),
+                             result.size() == c.expected.size());
                 for (int j = 0; j < result.size(); ++j) {
                     LOOP2_ASSERT(c.name, j, result[j] == c.expected[j]);
                 }
