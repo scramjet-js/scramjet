@@ -179,6 +179,7 @@ int main(int argc, char *argv[])
                 "invalid index",
             },
             { "= ints", "=i", false, { BC::createOpcode(BC::e_EqInts)}},
+            { "++int", "++i", false, { BC::createOpcode(BC::e_IncInt)}},
             { "+ doubles", "+d", false, { BC::createOpcode(BC::e_AddDoubles)}},
             { "call", "C8", false, { BC::createOpcode(BC::e_Call, f(8)) } },
             {

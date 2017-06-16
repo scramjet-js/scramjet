@@ -87,6 +87,10 @@ class Bytecode {
             // Pop the two integers on the top of the stack.  Push 'true' on
             // the stack if they are the same and 'false' otherwise.
 
+        e_IncInt,
+            // Pop the top integer on the stack and push the integer that is
+            // one greater than it.
+
         e_AddDoubles,
             // Pop the top two arguments on the stack, add them, and push
             // the result.

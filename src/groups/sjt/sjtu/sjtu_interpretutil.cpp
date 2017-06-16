@@ -93,8 +93,15 @@ InterpretUtil::interpretBytecode(Allocator            *allocator,
 
             const int l = stack.back().theInteger();
             stack.pop_back();
-            stack.back() =
-                    bdld::Datum::createBoolean(l == stack.back().theInteger());
+            bdld::Datum& back = stack.back();
+            back = bdld::Datum::createBoolean(l == back.theInteger());
+          } break;
+
+          case sjtt::Bytecode::e_IncInt: {
+            BSLS_ASSERT(stack.size() > frame->bottom());
+            BSLS_ASSERT(stack.back().isInteger());
+            bdld::Datum& back = stack.back();
+            back = bdld::Datum::createInteger(back.theInteger() + 1);
           } break;
 
           case sjtt::Bytecode::e_AddDoubles: {
@@ -105,8 +112,8 @@ InterpretUtil::interpretBytecode(Allocator            *allocator,
 
             const double l = stack.back().theDouble();
             stack.pop_back();
-            stack.back() =
-                       bdld::Datum::createDouble(l + stack.back().theDouble());
+            bdld::Datum& back = stack.back();
+            back = bdld::Datum::createDouble(l + back.theDouble());
           } break;
 
           case sjtt::Bytecode::e_Call: {
