@@ -68,7 +68,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 9 :{
+      case 7 :{
         if (verbose) cout << endl
                           << "setValue" << endl
                           << "=======" << endl;
@@ -86,7 +86,7 @@ int main(int argc, char *argv[])
         };
         BSLS_ASSERT(expected == stack);
       } break;
-      case 8: {
+      case 6: {
         if (verbose) cout << endl
                           << "reserve" << endl
                           << "=======" << endl;
@@ -118,94 +118,6 @@ int main(int argc, char *argv[])
             f.reserve(&stack, c.count);
             LOOP_ASSERT(c.name, c.expected == stack);
         }
-      } break;
-      case 7: {
-        if (verbose) cout << endl
-                          << "popMany" << endl
-                          << "=======" << endl;
-        // base
-        {
-            bsl::vector<bdld::Datum> stack;
-            Bytecode code = Bytecode::createOpcode(Bytecode::e_Exit);
-            Frame f(0, &code, &code);
-            f.popMany(&stack, 0);
-            ASSERT(stack.empty());
-        }
-
-        // base with offset
-        {
-            bsl::vector<bdld::Datum> stack = {
-                bdld::Datum::createNull(),
-            };
-            Bytecode code = Bytecode::createOpcode(Bytecode::e_Exit);
-            Frame f(1, &code, &code);
-            f.popMany(&stack, 0);
-            ASSERT(1 == stack.size());
-        }
-
-        // one and all
-        {
-            Bytecode code = Bytecode::createOpcode(Bytecode::e_Exit);
-            Frame f(0, &code, &code);
-            bsl::vector<bdld::Datum> stack = {
-                bdld::Datum::createNull(),
-            };
-            f.popMany(&stack, 1);
-            ASSERT(stack.empty());
-        }
-
-        // one of some
-        {
-            Bytecode code = Bytecode::createOpcode(Bytecode::e_Exit);
-            Frame f(0, &code, &code);
-            const bdld::Datum d0 = bdld::Datum::createInteger(9);
-            const bdld::Datum d1 = bdld::Datum::createInteger(22);
-            bsl::vector<bdld::Datum> stack;
-            stack.push_back(d0);
-            stack.push_back(d1);
-            f.popMany(&stack, 1);
-            ASSERT(bsl::vector<bdld::Datum>(&d0, &d0 + 1) == stack);
-        }
-
-        // one of some with offset
-        {
-            Bytecode code = Bytecode::createOpcode(Bytecode::e_Exit);
-            Frame f(1, &code, &code);
-            const bdld::Datum d0 = bdld::Datum::createInteger(9);
-            const bdld::Datum d1 = bdld::Datum::createInteger(22);
-            bsl::vector<bdld::Datum> stack;
-            stack.push_back(d0);
-            stack.push_back(d1);
-            f.popMany(&stack, 1);
-            ASSERT(bsl::vector<bdld::Datum>(&d0, &d0 + 1) == stack);
-        }
-
-        // many all
-        {
-            Bytecode code = Bytecode::createOpcode(Bytecode::e_Exit);
-            Frame f(0, &code, &code);
-            const bdld::Datum d0 = bdld::Datum::createInteger(9);
-            const bdld::Datum d1 = bdld::Datum::createInteger(22);
-            bsl::vector<bdld::Datum> stack;
-            stack.push_back(d0);
-            stack.push_back(d1);
-            f.popMany(&stack, 2);
-            ASSERT(stack.empty());
-        }
-      } break;
-      case 6: {
-        if (verbose) cout << endl
-                          << "pop" << endl
-                          << "===" << endl;
-        Bytecode code = Bytecode::createOpcode(Bytecode::e_Exit);
-        bsl::vector<bdld::Datum> stack = {
-            bdld::Datum::createInteger(9),
-            bdld::Datum::createInteger(3),
-        };
-        Frame f(1, &code, &code);
-        f.pop(&stack);
-        ASSERT(1 == stack.size() &&
-                    bdld::Datum::createInteger(9) == stack[0]);
       } break;
       case 5: {
         if (verbose) cout << endl

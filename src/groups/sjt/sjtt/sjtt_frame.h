@@ -100,15 +100,6 @@ class Frame {
     const sjtt::Bytecode *pc() const;
         // Return the program counter for this frame.
 
-    void pop(bsl::vector<Datum> *stack) const;
-        // Pop the top value off of the specified 'stack'.  The behavior is
-        // undefined unless 'stack->size() > bottom()'.
-
-    void popMany(bsl::vector<Datum> *stack, int count) const;
-        // Pop the specified 'count' values from the specified 'stack'.
-        // behavior is undefined unless
-        // '0 <= count && stack->size() > (bottom() + count)';
-
     void reserve(bsl::vector<Datum> *stack, int count) const;
         // Ensure that the size of the stack for this frame is at least the
         // specified 'count' elements in the specified 'stack'.  The behavior
@@ -198,21 +189,6 @@ inline
 const sjtt::Bytecode *Frame::pc() const
 {
     return d_pc_p;
-}
-
-inline
-void Frame::pop(bsl::vector<Datum> *stack) const
-{
-    BSLS_ASSERT(stack->size() > d_bottom);
-    stack->pop_back();
-}
-
-inline
-void Frame::popMany(bsl::vector<Datum> *stack, int count) const
-{
-    BSLS_ASSERT(0 <= count);
-    BSLS_ASSERT(stack->size() >= (d_bottom + count));
-    stack->erase(stack->end() - count, stack->end());
 }
 
 inline
