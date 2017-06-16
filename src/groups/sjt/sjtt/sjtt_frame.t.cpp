@@ -68,24 +68,6 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 7 :{
-        if (verbose) cout << endl
-                          << "setValue" << endl
-                          << "=======" << endl;
-        bdld::Datum d = bdld::Datum::createInteger(2);
-        Bytecode code = Bytecode::createOpcode(Bytecode::e_Exit);
-        Frame f(1, &code, &code);
-        bsl::vector<bdld::Datum> stack = {
-            bdld::Datum::createNull(),
-            bdld::Datum::createNull(),
-        };
-        f.setValue(&stack, 0, d);
-        bsl::vector<bdld::Datum> expected = {
-            bdld::Datum::createNull(),
-            d,
-        };
-        BSLS_ASSERT(expected == stack);
-      } break;
       case 6: {
         if (verbose) cout << endl
                           << "reserve" << endl
@@ -130,12 +112,12 @@ int main(int argc, char *argv[])
         };
         Bytecode code[1];
 
-        ASSERT(stack[0] == Frame(0, code, code).getValue(stack, 0));
-        ASSERT(stack[1] == Frame(0, code, code).getValue(stack, 1));
-        ASSERT(stack[1] == Frame(1, code, code).getValue(stack, 0));
-        ASSERT(stack[2] == Frame(2, code, code).getValue(stack, 0));
-        ASSERT(stack[2] == Frame(1, code, code).getValue(stack, 1));
-        ASSERT(stack[2] == Frame(0, code, code).getValue(stack, 2));
+        ASSERT(&stack[0] == &Frame(0, code, code).getValue(&stack, 0));
+        ASSERT(&stack[1] == &Frame(0, code, code).getValue(&stack, 1));
+        ASSERT(&stack[1] == &Frame(1, code, code).getValue(&stack, 0));
+        ASSERT(&stack[2] == &Frame(2, code, code).getValue(&stack, 0));
+        ASSERT(&stack[2] == &Frame(1, code, code).getValue(&stack, 1));
+        ASSERT(&stack[2] == &Frame(0, code, code).getValue(&stack, 2));
       } break;
       case 4: {
         if (verbose) cout << endl

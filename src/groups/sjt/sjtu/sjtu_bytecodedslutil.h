@@ -46,7 +46,7 @@ struct BytecodeDSLUtil {
     // if            = 'I'<int>
     // if equal ints = 'I=i'<int>
     // equal ints    = '=i'
-    // increment int = '++i'
+    // increment int = '++i'<int>
     // add doubles   = '+d'
     // call          = 'C'<int>
     // execute       = 'E'

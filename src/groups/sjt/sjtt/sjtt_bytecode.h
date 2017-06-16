@@ -88,8 +88,8 @@ class Bytecode {
             // the stack if they are the same and 'false' otherwise.
 
         e_IncInt,
-            // Pop the top integer on the stack and push the integer that is
-            // one greater than it.
+            // Increment the local variable stored in the index indicated by
+            // the integer in the data for this code.
 
         e_AddDoubles,
             // Pop the top two arguments on the stack, add them, and push

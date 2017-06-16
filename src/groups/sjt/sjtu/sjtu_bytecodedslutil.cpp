@@ -166,11 +166,13 @@ int parseIncInt(Bytecode                        *result,
                 const StringRef&                 data,
                 const FunctionNameToAddressMap&  functions)
 {
-    if (!data.empty()) {
-        *errorMessage = "trailing data";
+    const int addr = parseInt(data);
+    if (0 > addr) {
+        *errorMessage = "invalid index";
         return -1;
     }
-    *result = Bytecode::createOpcode(Bytecode::e_IncInt);
+    *result = Bytecode::createOpcode(Bytecode::e_IncInt,
+                                     Datum::createInteger(addr));
     return 0;
 }
 

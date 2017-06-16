@@ -88,8 +88,8 @@ class Frame {
     int bottom() const;
         // Return the bottom of the stack for this frame.
 
-    const Datum& getValue(const bsl::vector<Datum>& stack,
-                          int                       index) const;
+    Datum& getValue(bsl::vector<Datum> *stack,
+                    int                 index) const;
         // Return the value at the specified 'index' in this frame from the
         // specified 'stack'.  The behavior is undefined unless
         // '0 <= index && bottom() + index < stack.size()'.
@@ -105,12 +105,7 @@ class Frame {
         // specified 'count' elements in the specified 'stack'.  The behavior
         // is undefined unless 'bottom() <= stack->size() && 0 <= count'.
 
-    void setValue(bsl::vector<Datum> *stack,
-                  int                 index,
-                  const Datum&        value) const;
-        // Assign the specified 'value' to the location at the specified
-        // 'index' in the specified 'stack'.  The behavior is undefined unless
-        // '0 <= index && bottom() + index < stack->size()'.
+        // '0 <= index && bottom() + index < stack.size()'.
 };
 
 // FREE OPERATORS
@@ -170,13 +165,12 @@ int Frame::bottom() const {
 }
 
 inline
-const BloombergLP::bdld::Datum& Frame::getValue(
-                                         const bsl::vector<Datum>& stack,
-                                         int                       index) const
+BloombergLP::bdld::Datum& Frame::getValue(bsl::vector<Datum> *stack,
+                                          int                 index) const
 {
     BSLS_ASSERT(0 <= index);
-    BSLS_ASSERT(d_bottom + index < stack.size());
-    return stack[d_bottom + index];
+    BSLS_ASSERT(d_bottom + index < stack->size());
+    return (*stack)[d_bottom + index];
 }
 
 inline
@@ -202,16 +196,6 @@ void Frame::reserve(bsl::vector<Datum> *stack, int count) const
                       count - currentSize,
                       sjtt::DatumUdtUtil::s_Undefined);
     }
-}
-
-inline
-void Frame::setValue(bsl::vector<Datum> *stack,
-                     int                 index,
-                     const Datum&        value) const
-{
-    BSLS_ASSERT(0 <= index);
-    BSLS_ASSERT(d_bottom + index < stack->size());
-    (*stack)[d_bottom + index] = value;
 }
 }  // close package namespace
 

@@ -38,14 +38,14 @@ InterpretUtil::interpretBytecode(Allocator            *allocator,
           case sjtt::Bytecode::e_Load: {
 
             BSLS_ASSERT(code.data().isInteger());
-            stack.push_back(frame->getValue(stack, code.data().theInteger()));
+            stack.push_back(frame->getValue(&stack, code.data().theInteger()));
           } break;
 
           case sjtt::Bytecode::e_Store: {
 
             BSLS_ASSERT(code.data().isInteger());
             BSLS_ASSERT(stack.size() > frame->bottom());
-            frame->setValue(&stack, code.data().theInteger(), stack.back());
+            frame->getValue(&stack, code.data().theInteger()) = stack.back();
             stack.pop_back();
           } break;
 
@@ -98,10 +98,14 @@ InterpretUtil::interpretBytecode(Allocator            *allocator,
           } break;
 
           case sjtt::Bytecode::e_IncInt: {
-            BSLS_ASSERT(stack.size() > frame->bottom());
-            BSLS_ASSERT(stack.back().isInteger());
-            bdld::Datum& back = stack.back();
-            back = bdld::Datum::createInteger(back.theInteger() + 1);
+            BSLS_ASSERT(code.data().isInteger());
+            BSLS_ASSERT(stack.size() - frame->bottom() >
+                        code.data().theInteger());
+            BSLS_ASSERT(
+                frame->getValue(&stack, code.data().theInteger()).isInteger());
+            bdld::Datum& value = frame->getValue(&stack,
+                                                 code.data().theInteger());
+            value = bdld::Datum::createInteger(value.theInteger() + 1);
           } break;
 
           case sjtt::Bytecode::e_AddDoubles: {
