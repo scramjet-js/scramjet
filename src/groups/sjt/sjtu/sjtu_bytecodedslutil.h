@@ -32,6 +32,7 @@ struct BytecodeDSLUtil {
     //                 <jump> |
     //                 <if> |
     //                 <if equal ints> |
+    //                 <equal ints> |
     //                 <add doubles> |
     //                 <call> |
     //                 <execute> |
@@ -43,6 +44,7 @@ struct BytecodeDSLUtil {
     // jump          = 'J'<int>
     // if            = 'I'<int>
     // if equal ints = 'I=i'<int>
+    // equal ints    = '=i'
     // add doubles   = '+d'
     // call          = 'C'<int>
     // execute       = 'E'

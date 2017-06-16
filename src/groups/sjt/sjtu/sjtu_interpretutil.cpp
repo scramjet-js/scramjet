@@ -84,6 +84,19 @@ InterpretUtil::interpretBytecode(Allocator            *allocator,
             }
           } break;
 
+          case sjtt::Bytecode::e_EqInts: {
+
+            BSLS_ASSERT(1 < stack.size());
+            BSLS_ASSERT(stack.back().isInteger());
+            BSLS_ASSERT(stack[stack.size() - 2].isInteger());
+
+            const int l = stack.back().theInteger();
+            frame->pop(&stack);
+            const bool result = l == stack.back().theInteger();
+            frame->pop(&stack);
+            stack.push_back(bdld::Datum::createBoolean(result));
+          } break;
+
           case sjtt::Bytecode::e_AddDoubles: {
 
             BSLS_ASSERT(1 < stack.size());

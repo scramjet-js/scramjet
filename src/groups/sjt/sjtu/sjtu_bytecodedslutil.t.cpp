@@ -178,6 +178,7 @@ int main(int argc, char *argv[])
                 "failed to parse code 'I=i' from 'i' at position: 0 -- "
                 "invalid index",
             },
+            { "= ints", "=i", false, { BC::createOpcode(BC::e_EqInts)}},
             { "+ doubles", "+d", false, { BC::createOpcode(BC::e_AddDoubles)}},
             { "call", "C8", false, { BC::createOpcode(BC::e_Call, f(8)) } },
             {
