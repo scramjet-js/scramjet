@@ -63,7 +63,6 @@ int main(int argc, char *argv[])
 {
     const int         test = argc > 1 ? atoi(argv[1]) : 0;
     const bool     verbose = argc > 2;
-    const bool veryVerbose = argc > 3;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
@@ -162,8 +161,6 @@ int main(int argc, char *argv[])
 
         // diff first code
         {
-            sjtt::Bytecode code2 =
-                        sjtt::Bytecode::createOpcode(sjtt::Bytecode::e_Push);
             Frame a(0, &code, &code1);
             Frame b(0, &code1, &code1);
             ASSERT(a != b);
@@ -171,8 +168,6 @@ int main(int argc, char *argv[])
 
         // diff pc
         {
-            sjtt::Bytecode code2 =
-                        sjtt::Bytecode::createOpcode(sjtt::Bytecode::e_Push);
             Frame a(0, &code, &code);
             Frame b(0, &code, &code1);
             ASSERT(a != b);

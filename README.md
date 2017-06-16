@@ -47,7 +47,9 @@ Subsequently, to build:
 $ cd scramjet
 $ mkdir build
 $ cd build
-$ cmake ../src
+$ mkdir debug
+$ cd debug
+$ cmake -DCMAKE_BUILD_TYPE=Debug ../../src
 $ make
 ```
 
@@ -55,14 +57,24 @@ Or, if you want it to be fast, install ninja and replace the last two lines
 with:
 
 ```bash
-$ cmake -GNinja ../src
+$ cmake -GNinja -DCMAKE_BUILD_TYPE ../../src
+$ ninja
+```
+
+Finally, to do a release build, the recommended example:
+
+```bash
+$ cd build
+$ mkdir release
+$ cd release
+$ cmake -GNinja -DCMAKE_BUILD_TYPE=Release ../../src
 $ ninja
 ```
 
 Then, to run tests (from the `build` directory):
 
 ```bash
-$ ../tools/test.bash
+$ ../../tools/test.bash
 ```
 
 The following templates are provided:

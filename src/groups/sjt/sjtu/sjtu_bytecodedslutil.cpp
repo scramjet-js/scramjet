@@ -31,23 +31,6 @@ int parseInt(const StringRef& data) {
     return -1;
 }
 
-int parseTwoInts(int              *firstResult,
-                 int              *secondResult,
-                 const StringRef&  data)
-{
-    // Return the integer values stored in the string in the specified 'data',
-    // load the first into the specified 'firstResult' and the second into the
-    // specified 'secondResult', and return 0.  If the string does not have the
-    // form '<int>,<int>', return a non-zero value.
-
-    char sep;
-    bsl::istringstream is(data);
-    if (is >> *firstResult && is >> sep && is >> *secondResult && ',' == sep) {
-        return 0;
-    }
-    return -1;
-}
-
 int parsePush(Bytecode                        *result,
               bsl::string                     *errorMessage,
               bslma::Allocator                *alloc,
