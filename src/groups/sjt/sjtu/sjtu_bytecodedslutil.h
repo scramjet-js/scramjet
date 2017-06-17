@@ -38,7 +38,7 @@ struct BytecodeDSLUtil {
     //                 <call> |
     //                 <execute> |
     //                 <exit> |
-    //                 <reserve>
+    //                 <resive>
     // push          = 'P'<datum>
     // load          = 'L'<int>
     // store         = 'S'<int>
@@ -52,7 +52,7 @@ struct BytecodeDSLUtil {
     // execute       = 'E'
     // exit          = 'X'
     // datum         = 'd'<double> | 'i'<int> | 'e'<external function name>
-    // reserve       = 'V'<int>
+    // resize        = 'V'<int>
     //
     // Example:
     //     "Pd2|Pd3|+d|X"

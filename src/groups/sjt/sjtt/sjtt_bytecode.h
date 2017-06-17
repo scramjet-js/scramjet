@@ -120,9 +120,10 @@ class Bytecode {
             // from its stack, the argument count and arguments from its stack,
             // push onto its stack the return value, and resume executing.
 
-        e_Reserve,
-            // Ensure that the stack for the current frame has at least the
-            // number of values stored in the integer of this opcode.
+        e_Resize,
+            // Set the stack for the current frame to the size specified by the
+            // integer stored with this opcode, popping excess values and
+            // populating new values with 'DatumUdtUtil::e_Undefined'.
     };
 
     static const int s_MinInitialStackSize = 8;

@@ -133,7 +133,7 @@ int main(int argc, char *argv[])
                 f(3),
             },
             {
-                "reserve",
+                "resize",
                 "Pi3|V80|Pi4|L79|X",
                 f.u(),
             },

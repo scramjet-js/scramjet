@@ -209,13 +209,13 @@ int main(int argc, char *argv[])
                 "data",
             },
             {
-                "reserve",
+                "resize",
                 "V8",
                 false,
-                { BC::createOpcode(BC::e_Reserve, f(8)) },
+                { BC::createOpcode(BC::e_Resize, f(8)) },
             },
             {
-                "bad reserve",
+                "bad resize",
                 "Vi",
                 true,
                 {},

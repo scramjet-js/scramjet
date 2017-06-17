@@ -231,18 +231,18 @@ int parseExit(Bytecode                        *result,
     return 0;
 }
 
-int parseReserve(Bytecode                        *result,
-                 bsl::string                     *errorMessage,
-                 bslma::Allocator                *alloc,
-                 const StringRef&                 data,
-                 const FunctionNameToAddressMap&  functions)
+int parseResize(Bytecode                        *result,
+                bsl::string                     *errorMessage,
+                bslma::Allocator                *alloc,
+                const StringRef&                 data,
+                const FunctionNameToAddressMap&  functions)
 {
     const int addr = parseInt(data);
     if (0 > addr) {
         *errorMessage = "invalid index";
         return -1;
     }
-    *result = Bytecode::createOpcode(Bytecode::e_Reserve,
+    *result = Bytecode::createOpcode(Bytecode::e_Resize,
                                      Datum::createInteger(addr));
     return 0;
 }
@@ -271,7 +271,7 @@ const struct ParserEntry {
     { "C", parseCall },
     { "E", parseExecute },
     { "X", parseExit },
-    { "V", parseReserve },
+    { "V", parseResize },
 };
 
 int findParser(StringRef* data)

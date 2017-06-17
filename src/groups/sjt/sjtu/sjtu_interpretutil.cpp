@@ -21,11 +21,11 @@ InterpretUtil::interpretBytecode(Allocator            *allocator,
     BSLS_ASSERT(0 != allocator);
     BSLS_ASSERT(0 != codes);
 
-    bsl::vector<Datum>       stack;
+    bsl::vector<Datum> stack(sjtt::Bytecode::s_MinInitialStackSize,
+                             sjtt::DatumUdtUtil::s_Undefined);
     bsl::vector<sjtt::Frame> frames;
     frames.emplace_back(0, codes, codes);
     sjtt::Frame *frame = &frames.back();
-    frame->reserve(&stack, sjtt::Bytecode::s_MinInitialStackSize);
     while (true) {
         const sjtt::Bytecode& code = *frame->pc();
         switch (code.opcode()) {
@@ -139,12 +139,19 @@ InterpretUtil::interpretBytecode(Allocator            *allocator,
 
             const int argCount = stack.back().theInteger();
             stack.pop_back();
+            const int newBottom  = stack.size() - argCount;
             BSLS_ASSERT(stack.size() - argCount >= frame->bottom());
-            frames.emplace_back(stack.size() - argCount,
+            const int numToAdd =
+                              sjtt::Bytecode::s_MinInitialStackSize - argCount;
+            if (0 < numToAdd) {
+                stack.insert(stack.end(),
+                             numToAdd,
+                             sjtt::DatumUdtUtil::s_Undefined);
+            }
+            frames.emplace_back(newBottom,
                                 frame->firstCode(),
                                 frame->firstCode() + code.data().theInteger());
             frame = &frames.back();
-            frame->reserve(&stack, sjtt::Bytecode::s_MinInitialStackSize);
             continue;                             // skip past normal increment
           } break;
 
@@ -200,10 +207,10 @@ InterpretUtil::interpretBytecode(Allocator            *allocator,
             }
           } break;
 
-          case sjtt::Bytecode::e_Reserve: {
+          case sjtt::Bytecode::e_Resize: {
             BSLS_ASSERT(code.data().isInteger());
-
-            frame->reserve(&stack, code.data().theInteger());
+            stack.resize(frame->bottom() + code.data().theInteger(),
+                         sjtt::DatumUdtUtil::s_Undefined);
           } break;
         }
         frame->incrementPc();

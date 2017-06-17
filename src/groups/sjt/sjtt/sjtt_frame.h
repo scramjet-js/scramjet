@@ -99,13 +99,6 @@ class Frame {
 
     const sjtt::Bytecode *pc() const;
         // Return the program counter for this frame.
-
-    void reserve(bsl::vector<Datum> *stack, int count) const;
-        // Ensure that the size of the stack for this frame is at least the
-        // specified 'count' elements in the specified 'stack'.  The behavior
-        // is undefined unless 'bottom() <= stack->size() && 0 <= count'.
-
-        // '0 <= index && bottom() + index < stack.size()'.
 };
 
 // FREE OPERATORS
@@ -183,19 +176,6 @@ inline
 const sjtt::Bytecode *Frame::pc() const
 {
     return d_pc_p;
-}
-
-inline
-void Frame::reserve(bsl::vector<Datum> *stack, int count) const
-{
-    BSLS_ASSERT(0 <= count);
-    BSLS_ASSERT(d_bottom <= stack->size());
-    const int currentSize = stack->size() - d_bottom;
-    if (count > currentSize) {
-        stack->insert(stack->end(),
-                      count - currentSize,
-                      sjtt::DatumUdtUtil::s_Undefined);
-    }
 }
 }  // close package namespace
 

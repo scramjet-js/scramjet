@@ -67,39 +67,6 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 6: {
-        if (verbose) cout << endl
-                          << "reserve" << endl
-                          << "=======" << endl;
-        const bdld::Datum N = bdld::Datum::createNull();
-        const bdld::Datum U = sjtt::DatumUdtUtil::s_Undefined;
-        const struct Case {
-            const char               *name;
-            bsl::vector<bdld::Datum>  initial;
-            int                       offset;
-            int                       count;
-            bsl::vector<bdld::Datum>  expected;
-        } cases[] = {
-            { "base", {}, 0, 0, {} },
-            { "base add some", {}, 0, 1, { U } },
-            { "base no add 0", { N }, 0, 0, { N } },
-            { "base no add 1", { N }, 0, 1, { N } },
-            { "base add one, not all", { N }, 0, 2, { N, U } },
-            { "offset base", { N }, 1, 0, { N } },
-            { "offset base add some", { N }, 1, 1, { N, U } },
-            { "offset base no add 0", { N, N }, 1, 0, { N, N } },
-            { "offset base no add 1", { N, N }, 1, 1, { N, N } },
-            { "offset base add one, not all", { N, N }, 1, 2, { N, N, U } },
-        };
-        for (int i = 0; i < sizeof(cases) / sizeof(cases[0]); ++i) {
-            const Case& c = cases[i];
-            Bytecode code[1];
-            Frame f(c.offset, code, code);
-            bsl::vector<bdld::Datum> stack = c.initial;
-            f.reserve(&stack, c.count);
-            LOOP_ASSERT(c.name, c.expected == stack);
-        }
-      } break;
       case 5: {
         if (verbose) cout << endl
                           << "getValue" << endl
