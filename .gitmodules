@@ -4,3 +4,6 @@
 [submodule "src/ext/bde-tools"]
 	path = src/ext/bde-tools
 	url = https://github.com/bloomberg/bde-tools.git
+[submodule "src/ext/llvm"]
+	path = src/ext/llvm
+	url = https://github.com/llvm-mirror/llvm.git
