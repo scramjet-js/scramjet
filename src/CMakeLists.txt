@@ -32,6 +32,8 @@ include_directories("ext/bde/groups/bsl/bslh")
 include_directories("ext/bde/groups/bsl/bslma")
 include_directories("ext/bde/thirdparty")
 include_directories("ext/bde/thirdparty/inteldfp/LIBRARY/src")
+include_directories("ext/llvm/include")
+include_directories("${CMAKE_BINARY_DIR}/ext/llvm/include")
 
 add_subdirectory(apps)
 add_subdirectory(ext)
