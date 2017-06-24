@@ -25,7 +25,7 @@ class Bytecode;
 
 
 class Function {
-    // This class is an in-core, value-semantic type a function.
+    // This class is an in-core, value-semantic type representing a function.
 
   private:
     // FRIENDS
@@ -34,7 +34,7 @@ class Function {
     // DATA
     const Bytecode  *d_code_p;
     int              d_argCount;   // number of named arguments to the function
-    int              d_numLocals;  // 
+    int              d_numLocals;  // number of local variables
 
   public:
     // TRAITS
@@ -50,15 +50,11 @@ class Function {
         // 'argCount', and 'numLocals'.  The behavior is undefined unless
         // '0 <= argCount' and '0 <= numLocals'.
 
-    //! Function(const Function& original) = default;
+    Function(const Function& original) = default;
         // Create a function having the value of the specified 'original'.
 
-    //! ~Function() = default;
-        // Destroy this object. Note that this method does not deallocate any
-        // dynamically allocated memory used by this object (see 'destroy').
-
     // MANIPULATORS
-    //! Function& operator=(const Function& rhs) = default;
+    Function& operator=(const Function& rhs) = default;
         // Assign to this object the value of the specified 'rhs' object. Note
         // that this method's definition is compiler generated.
 
@@ -82,8 +78,12 @@ class Function {
 bool operator==(const Function& lhs, const Function& rhs);
     // Return true if the specified 'lhs' and 'rhs' represent the same value.
     // Two 'Function' objects represnet the same value if they have the same
-    // 'data' and 'opcode'.
+    // 'argCount', 'code', and 'numLocals'.
 
+bool operator!=(const Function& lhs, const Function& rhs);
+    // Return false if the specified 'lhs' and 'rhs' represent the same value.
+    // Two 'Function' objects represnet the same value if they have the same
+    // 'argCount', 'code', and 'numLocals'.
 
 // ============================================================================
 //                             INLINE DEFINITIONS
@@ -94,35 +94,46 @@ bool operator==(const Function& lhs, const Function& rhs);
                                // --------------
 // CLASS METHODS
 inline
-Function Function::createOpcode(Opcode opcode) {
-    Function result;
-    result.d_opcode = opcode;
-    result.d_data = Datum::createNull();
-    return result;
-}
-
-inline
-Function Function::createOpcode(Opcode opcode, const Datum& data) {
-    Function result;
-    result.d_opcode = opcode;
-    result.d_data = data;
-    return result;
+Function::Function(const Bytecode *code,
+                   int             argCount,
+                   int             numLocals)
+: d_code_p(code)
+, d_argCount(argCount)
+, d_numLocals(numLocals)
+{
+    BSLS_ASSERT(0 != code);
+    BSLS_ASSERT(0 <= argCount);
+    BSLS_ASSERT(0 <= numLocals);
 }
 
 // ACCESSORS
 inline
-const BloombergLP::bdld::Datum& Function::data() const {
-    return d_data;
+int Function::argCount() const
+{
+    return d_argCount;
 }
 
 inline
-Function::Opcode Function::opcode() const {
-    return d_opcode;
+const Bytecode *Function::code() const
+{
+    return d_code_p;
+}
+
+inline
+int Function::numLocals() const
+{
+    return d_numLocals;
 }
 
 // FREE OPERATORS
 inline bool operator==(const Function& lhs, const Function& rhs) {
-    return lhs.d_data == rhs.d_data && lhs.d_opcode == rhs.d_opcode;
+    return lhs.d_argCount == rhs.d_argCount &&
+        lhs.d_code_p == rhs.d_code_p &&
+        lhs.d_numLocals == rhs.d_numLocals;
+}
+
+inline bool operator!=(const Function& lhs, const Function& rhs) {
+    return !(lhs == rhs);
 }
 }
 
