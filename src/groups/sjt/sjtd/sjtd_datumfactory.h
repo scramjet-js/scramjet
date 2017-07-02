@@ -1,19 +1,19 @@
-#ifndef INCLUDED_SJTM_DATUMFACTORY
-#define INCLUDED_SJTM_DATUMFACTORY
+#ifndef INCLUDED_SJTD_DATUMFACTORY
+#define INCLUDED_SJTD_DATUMFACTORY
 
 #ifndef INCLUDED_BDLD_DATUM
 #include <bdld_datum.h>
 #endif
 
-#ifndef INCLUDED_SJTT_DATUMUDTUTIL
-#include <sjtt_datumudtutil.h>
+#ifndef INCLUDED_SJTD_DATUMUDTUTIL
+#include <sjtd_datumudtutil.h>
 #endif
 
 namespace BloombergLP {
 namespace bslma { class Allocator; }
 }
 
-namespace sjtm {
+namespace sjtd {
 class DatumFactory {
     // This class is a mechanism that provides a syntactically-minimal way to
     // create 'Datum' objects.
@@ -40,10 +40,10 @@ class DatumFactory {
         // Return the allocator associated with this object.
 
     const Datum& u() const;
-        // Return 'sjtt::DatumUdtUtil::s_Undefined'.
+        // Return 'sjtd::DatumUdtUtil::s_Undefined'.
 
     const Datum& operator()() const;
-        // Return 'sjtt::DatumUdtUtil::s_Null'.
+        // Return 'sjtd::DatumUdtUtil::s_Null'.
 
     Datum operator()(bool value) const;
         // Return a 'Datum' object having the specified 'value'.
@@ -54,7 +54,7 @@ class DatumFactory {
     Datum operator()(double value) const;
         // Return a 'Datum' object having the specified 'value'.
 
-    Datum operator()(sjtt::DatumUdtUtil::ExternalFunction value) const;
+    Datum operator()(sjtd::DatumUdtUtil::ExternalFunction value) const;
         // Return a 'Datum' object having the specified 'value'.
 };
 
@@ -80,12 +80,12 @@ BloombergLP::bslma::Allocator *DatumFactory::allocator() const {
 
 inline
 const BloombergLP::bdld::Datum& DatumFactory::u() const {
-    return sjtt::DatumUdtUtil::s_Undefined;
+    return sjtd::DatumUdtUtil::s_Undefined;
 }
 
 inline
 const BloombergLP::bdld::Datum& DatumFactory::operator()() const {
-    return sjtt::DatumUdtUtil::s_Null;
+    return sjtd::DatumUdtUtil::s_Null;
 }
 
 inline
@@ -106,9 +106,9 @@ BloombergLP::bdld::Datum DatumFactory::operator()(double value) const {
 
 inline
 BloombergLP::bdld::Datum
-DatumFactory::operator()(sjtt::DatumUdtUtil::ExternalFunction value) const {
-    return sjtt::DatumUdtUtil::datumFromExternalFunction(value);
+DatumFactory::operator()(sjtd::DatumUdtUtil::ExternalFunction value) const {
+    return sjtd::DatumUdtUtil::datumFromExternalFunction(value);
 }
 }
 
-#endif /* INCLUDED_SJTM_DATUMFACTORY */
+#endif /* INCLUDED_SJTD_DATUMFACTORY */

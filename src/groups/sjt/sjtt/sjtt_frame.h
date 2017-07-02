@@ -27,8 +27,8 @@
 #include <sjtt_bytecode.h>
 #endif
 
-#ifndef INCLUDED_SJTT_DATUMUDTUTIL
-#include <sjtt_datumudtutil.h>
+#ifndef INCLUDED_SJTD_DATUMUDTUTIL
+#include <sjtd_datumudtutil.h>
 #endif
 
 namespace sjtt {

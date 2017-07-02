@@ -7,7 +7,7 @@
 
 #include <bsl_vector.h>
 
-#include <sjtm_datumfactory.h>
+#include <sjtd_datumfactory.h>
 #include <sjtt_bytecode.h>
 #include <sjtt_executioncontext.h>
 #include <sjtu_bytecodedslutil.h>
@@ -86,7 +86,7 @@ int main(int argc, char *argv[])
     switch (test) { case 0:
       case 1: {
         bdlma::SequentialAllocator alloc;
-        const sjtm::DatumFactory f(&alloc);
+        const sjtd::DatumFactory f(&alloc);
 
         BytecodeDSLUtil::FunctionNameToAddressMap functions;
         functions["foo"] = testExecute;

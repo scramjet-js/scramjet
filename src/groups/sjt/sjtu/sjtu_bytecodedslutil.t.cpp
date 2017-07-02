@@ -7,7 +7,7 @@
 
 #include <bsl_vector.h>
 
-#include <sjtm_datumfactory.h>
+#include <sjtd_datumfactory.h>
 #include <sjtt_bytecode.h>
 
 using namespace BloombergLP;
@@ -83,7 +83,7 @@ int main(int argc, char *argv[])
                           << "=======" << endl;
 
         bdlma::SequentialAllocator alloc;
-        const sjtm::DatumFactory f(&alloc);
+        const sjtd::DatumFactory f(&alloc);
 
         BytecodeDSLUtil::FunctionNameToAddressMap functions;
         functions["foo"] = testFun;
@@ -282,7 +282,7 @@ int main(int argc, char *argv[])
                           << "readDatum" << endl
                           << "=========" << endl;
         bdlma::SequentialAllocator alloc;
-        const sjtm::DatumFactory f(&alloc);
+        const sjtd::DatumFactory f(&alloc);
 
         BytecodeDSLUtil::FunctionNameToAddressMap functions;
         functions["foo"] = testFun;

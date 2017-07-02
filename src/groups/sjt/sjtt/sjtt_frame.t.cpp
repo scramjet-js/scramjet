@@ -5,7 +5,6 @@
 #include <bdls_testutil.h>
 
 #include <sjtt_bytecode.h>
-#include <sjtt_datumudtutil.h>
 
 using namespace BloombergLP;
 using namespace bsl;

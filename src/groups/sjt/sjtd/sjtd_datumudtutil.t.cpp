@@ -1,12 +1,13 @@
-// sjtt_datumudtutil.t.cpp                                     -*-C++-*-
+// sjtd_datumudtutil.t.cpp                                     -*-C++-*-
 
-#include <sjtt_datumudtutil.h>
+#include <sjtd_datumudtutil.h>
 
 #include <bdls_testutil.h>
 #include <bdlma_localsequentialallocator.h>
 
 using namespace BloombergLP;
 using namespace bsl;
+using namespace sjtd;
 using namespace sjtt;
 
 // ============================================================================

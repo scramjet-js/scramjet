@@ -344,7 +344,7 @@ int BytecodeDSLUtil::readDatum(Datum                           *result,
             *errorMessage = "unknown function name '" + name + "'";
             return -1;                                                // RETURN
         }
-        *result = sjtt::DatumUdtUtil::datumFromExternalFunction(i->second);
+        *result = sjtd::DatumUdtUtil::datumFromExternalFunction(i->second);
       } break;
       default: {
         *errorMessage = "unknown datum type '";

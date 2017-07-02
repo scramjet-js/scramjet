@@ -15,8 +15,8 @@
 #include <sjtt_bytecode.h>
 #endif
 
-#ifndef INCLUDED_SJTT_DATUMUDTUTIL
-#include <sjtt_datumudtutil.h>
+#ifndef INCLUDED_SJTD_DATUMUDTUTIL
+#include <sjtd_datumudtutil.h>
 #endif
 
 namespace sjtu {
@@ -69,7 +69,7 @@ struct BytecodeDSLUtil {
     typedef BloombergLP::bslstl::StringRef StringRef;  // for convenience
 
     typedef bsl::unordered_map<bsl::string,
-                               sjtt::DatumUdtUtil::ExternalFunction>
+                               sjtd::DatumUdtUtil::ExternalFunction>
             FunctionNameToAddressMap;
         // Describes a map used to associated the names of functions in the DSL
         // with the addresses of actual functions.

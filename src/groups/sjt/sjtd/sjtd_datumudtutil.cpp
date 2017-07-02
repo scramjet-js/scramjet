@@ -1,7 +1,7 @@
-// sjtu_datum.cpp
-#include <sjtt_datumudtutil.h>
+// sjtd_datum.cpp
+#include <sjtd_datumudtutil.h>
 
-namespace sjtt {
+namespace sjtd {
 using BloombergLP::bdld::Datum;
 
 // CLASS DATA

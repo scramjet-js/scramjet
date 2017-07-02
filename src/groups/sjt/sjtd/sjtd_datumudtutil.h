@@ -1,7 +1,7 @@
-// sjtu_datumudtutil.h
+// sjtd_datumudtutil.h
 
-#ifndef INCLUDED_SJTT_DATUMUDTUTIL
-#define INCLUDED_SJTT_DATUMUDTUTIL
+#ifndef INCLUDED_SJTD_DATUMUDTUTIL
+#define INCLUDED_SJTD_DATUMUDTUTIL
 
 #ifndef INCLUDED_BDLD_DATUM
 #include <bdld_datum.h>
@@ -10,7 +10,7 @@
 namespace sjtt { class ExecutionContext; }
 namespace sjtt { class Bytecode; }
 
-namespace sjtt {
+namespace sjtd {
 
 struct DatumUdtUtil {
     // This is class provides a namespace for utilities to use types

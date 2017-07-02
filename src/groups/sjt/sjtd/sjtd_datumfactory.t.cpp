@@ -1,13 +1,13 @@
-// sjtm_datumfactory.t.cpp                                     -*-C++-*-
+// sjtd_datumfactory.t.cpp                                     -*-C++-*-
 
-#include <sjtm_datumfactory.h>
+#include <sjtd_datumfactory.h>
 
 #include <bdlma_sequentialallocator.h>
 #include <bdls_testutil.h>
 
 using namespace BloombergLP;
 using namespace bsl;
-using namespace sjtm;
+using namespace sjtd;
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -56,7 +56,7 @@ void aSsErT(bool condition, const char *message, int line)
 
 namespace {
     bdld::Datum testFun(const sjtt::ExecutionContext& context) {
-        return sjtt::DatumUdtUtil::s_Null;
+        return sjtd::DatumUdtUtil::s_Null;
     }
 }
 
@@ -91,7 +91,7 @@ int main(int argc, char *argv[])
 
         bdlma::SequentialAllocator alloc;
         const DatumFactory f(&alloc);
-        ASSERT(sjtt::DatumUdtUtil::datumFromExternalFunction(testFun) ==
+        ASSERT(sjtd::DatumUdtUtil::datumFromExternalFunction(testFun) ==
                f(testFun));
       } break;
       case 5: {
@@ -119,7 +119,7 @@ int main(int argc, char *argv[])
 
         bdlma::SequentialAllocator alloc;
         const DatumFactory f(&alloc);
-        ASSERT(&sjtt::DatumUdtUtil::s_Null == &f());
+        ASSERT(&sjtd::DatumUdtUtil::s_Null == &f());
       } break;
       case 2: {
         if (verbose) cout << endl
@@ -128,7 +128,7 @@ int main(int argc, char *argv[])
 
         bdlma::SequentialAllocator alloc;
         const DatumFactory f(&alloc);
-        ASSERT(&sjtt::DatumUdtUtil::s_Undefined == &f.u());
+        ASSERT(&sjtd::DatumUdtUtil::s_Undefined == &f.u());
       } break;
       case 1: {
         if (verbose) cout << endl

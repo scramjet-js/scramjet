@@ -8,7 +8,7 @@
 
 #include <sjtt_bytecode.h>
 #include <sjtt_executioncontext.h>
-#include <sjtt_datumudtutil.h>
+#include <sjtd_datumudtutil.h>
 #include <sjtt_frame.h>
 
 using namespace BloombergLP;
@@ -22,7 +22,7 @@ InterpretUtil::interpretBytecode(Allocator            *allocator,
     BSLS_ASSERT(0 != codes);
 
     bsl::vector<Datum> stack(sjtt::Bytecode::s_MinInitialStackSize,
-                             sjtt::DatumUdtUtil::s_Undefined);
+                             sjtd::DatumUdtUtil::s_Undefined);
     bsl::vector<sjtt::Frame> frames;
     frames.emplace_back(0, codes, codes);
     sjtt::Frame *frame = &frames.back();
@@ -146,7 +146,7 @@ InterpretUtil::interpretBytecode(Allocator            *allocator,
             if (0 < numToAdd) {
                 stack.insert(stack.end(),
                              numToAdd,
-                             sjtt::DatumUdtUtil::s_Undefined);
+                             sjtd::DatumUdtUtil::s_Undefined);
             }
             frames.emplace_back(newBottom,
                                 frame->firstCode(),
@@ -158,10 +158,10 @@ InterpretUtil::interpretBytecode(Allocator            *allocator,
           case sjtt::Bytecode::e_Execute: {
 
             BSLS_ASSERT(stack.size() - frame->bottom() >= 2);
-            BSLS_ASSERT(sjtt::DatumUdtUtil::isExternalFunction(stack.back()));
+            BSLS_ASSERT(sjtd::DatumUdtUtil::isExternalFunction(stack.back()));
 
-            const sjtt::DatumUdtUtil::ExternalFunction f =
-                         sjtt::DatumUdtUtil::getExternalFunction(stack.back());
+            const sjtd::DatumUdtUtil::ExternalFunction f =
+                         sjtd::DatumUdtUtil::getExternalFunction(stack.back());
             stack.pop_back();
             BSLS_ASSERT(stack.back().isInteger());
             const int numArgs = stack.back().theInteger();
@@ -210,7 +210,7 @@ InterpretUtil::interpretBytecode(Allocator            *allocator,
           case sjtt::Bytecode::e_Resize: {
             BSLS_ASSERT(code.data().isInteger());
             stack.resize(frame->bottom() + code.data().theInteger(),
-                         sjtt::DatumUdtUtil::s_Undefined);
+                         sjtd::DatumUdtUtil::s_Undefined);
           } break;
         }
         frame->incrementPc();
