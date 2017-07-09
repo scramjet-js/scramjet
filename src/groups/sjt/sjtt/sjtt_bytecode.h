@@ -134,17 +134,17 @@ class Bytecode {
     friend bool operator==(const Bytecode& lhs, const Bytecode& rhs);
 
     // DATA
-    Datum  d_data;
+    Datum  d_x;
+    Datum  d_y;
     Opcode d_opcode;    // operation for this bytecode
   public:
     // CLASS METHODS
-    static Bytecode createOpcode(Opcode opcode);
-        // Return a new 'Bytecode' object having the specified 'opcode' and
-        // 'Datum::createNull()' for data.
 
-    static Bytecode createOpcode(Opcode opcode, const Datum& data);
-        // Return a new 'Bytecode' object having the specified 'opcode' and the
-        // specified 'data'.
+    static Bytecode createOpcode(Opcode       opcode,
+                                 const Datum& x = Datum::createNull(),
+                                 const Datum& y = Datum::createNull());
+        // Return a new 'Bytecode' object having the specified 'opcode', 'x',
+        // and 'y'.
 
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(Bytecode, bsl::is_trivially_copyable);
@@ -172,11 +172,14 @@ class Bytecode {
         // that this method's definition is compiler generated.
 
     // ACCESSORS
-    const Datum& data() const;
-        // Return the 'data' for this object.
-
     Opcode opcode() const;
         // Return the opcode associated with this object.
+
+    const Datum& x() const;
+        // Return the 'x' for this object.
+
+    const Datum& y() const;
+        // Return the 'y' for this object.
 };
 
 // FREE OPERATORS
@@ -195,25 +198,23 @@ bool operator==(const Bytecode& lhs, const Bytecode& rhs);
                                // --------------
 // CLASS METHODS
 inline
-Bytecode Bytecode::createOpcode(Opcode opcode) {
+Bytecode Bytecode::createOpcode(Opcode opcode, const Datum& x, const Datum& y)
+{
     Bytecode result;
-    result.d_opcode = opcode;
-    result.d_data = Datum::createNull();
-    return result;
-}
-
-inline
-Bytecode Bytecode::createOpcode(Opcode opcode, const Datum& data) {
-    Bytecode result;
-    result.d_opcode = opcode;
-    result.d_data = data;
+    result.d_x = x;
+    result.d_y = y;
     return result;
 }
 
 // ACCESSORS
 inline
-const BloombergLP::bdld::Datum& Bytecode::data() const {
-    return d_data;
+const BloombergLP::bdld::Datum& Bytecode::x() const {
+    return d_x;
+}
+
+inline
+const BloombergLP::bdld::Datum& Bytecode::y() const {
+    return d_y;
 }
 
 inline
@@ -223,7 +224,9 @@ Bytecode::Opcode Bytecode::opcode() const {
 
 // FREE OPERATORS
 inline bool operator==(const Bytecode& lhs, const Bytecode& rhs) {
-    return lhs.d_data == rhs.d_data && lhs.d_opcode == rhs.d_opcode;
+    return lhs.d_opcode == rhs.d_opcode &&
+        lhs.d_x == rhs.d_x &&
+        lhs.d_y == rhs.d_y;
 }
 }
 
