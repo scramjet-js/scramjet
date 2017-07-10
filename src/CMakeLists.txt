@@ -35,6 +35,22 @@ include_directories("ext/bde/thirdparty/inteldfp/LIBRARY/src")
 include_directories("ext/llvm/include")
 include_directories("${CMAKE_BINARY_DIR}/ext/llvm/include")
 
+add_library(bdl STATIC IMPORTED)
+set_property(TARGET bdl PROPERTY IMPORTED_LOCATION
+    ${CMAKE_CURRENT_SOURCE_DIR}/ext/bde/build/groups/bdl/libbdl.a)
+
+add_library(bsl STATIC IMPORTED)
+set_property(TARGET bsl PROPERTY IMPORTED_LOCATION
+    ${CMAKE_CURRENT_SOURCE_DIR}/ext/bde/build/groups/bsl/libbsl.a)
+
+add_library(decnumber STATIC IMPORTED)
+set_property(TARGET decnumber PROPERTY IMPORTED_LOCATION
+    ${CMAKE_CURRENT_SOURCE_DIR}/ext/bde/build/thirdparty/decnumber/libdecnumber.a)
+
+add_library(inteldfp STATIC IMPORTED)
+set_property(TARGET inteldfp PROPERTY IMPORTED_LOCATION
+    ${CMAKE_CURRENT_SOURCE_DIR}/ext/bde/build/thirdparty/inteldfp/libinteldfp.a)
+
 add_subdirectory(apps)
 add_subdirectory(ext)
 add_subdirectory(groups)
