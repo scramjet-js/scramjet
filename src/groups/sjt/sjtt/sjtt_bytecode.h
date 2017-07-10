@@ -29,22 +29,12 @@ class ExecutionContext;
 
 
 class Bytecode {
-    // This class is an in-core, value-semantic type describing operations to
-    // execution in the Scramjet interpreter.
-    //
-    // # Function invocation
-    //
-    // When the bytecode for a function begins executing, its stack will
-    // initially contain the arguments that were passed to it, along with
-    // enough `DatumUdtUtil::s_Undefined` values so that at least
-    // the stack has at least `s_MinInitialStackSize` elements.
-    //
-    // # Function return
-    //
-    // When an `e_Exit` opcode is encountered, the top of the stack is saved,
-    // all values pertaining to the existing frame are popped off, then the
-    // saved value is pushed back onto the stack as the return value of the
-    // function.
+    // This class is an in-core, value-semantic type describing Scramjet
+    // operations.  Scramjet uses a single-assignment representation -- a
+    // variable index can be used as the 'dest' of an operation at most
+    // once in a function.  Furthermore, the first N variables of a function
+    // with N arguments are its parameters and cannot be used as destination at
+    // all.
 
   public:
         // Signature for functions provided by the user.
@@ -56,48 +46,81 @@ class Bytecode {
         // Enumeration used to discriminate between different operations
         // supported by the interpreter.
 
-        e_Push,
-            // Push the data in this opcode on the stack.
+        e_Allocate,
+            // Allocate space for a 'Datum' value and assign its address to
+            // the variable at 'dest'.
 
-        e_Load,
-            // Push the value from the value stored in the stack in the index
-            // specified by the integer value stored in this object onto the
-            // top of the stack.
+        e_AllocateI32,
+            // Allocate space for a 32-bit integer value and assign its address
+            // to the variable at 'dest'.
+
+        e_AllocateDouble,
+            // Allocate space for a double value and assign its address to
+            // the variable at 'dest'.
 
         e_Store,
-            // Pop the value from the top of the stack and store it in the
-            // location in the stack indicated by the index specified by the
-            // integer value stored in this object.
+            // Copy the value stored in the variable at 'y' into the address
+            // stored in the variable at 'x'; the behavior is undefined unless
+            // this address was allocated by the opcode 'e_Allocate' and 'y'
+            // was assigned a 'Datum' value.
+
+        e_StoreI32,
+            // Copy the value stored in the variable at 'y' into the address
+            // stored in the variable at 'x'; the behavior is undefined unless
+            // this address was allocated by the opcode 'e_AllocateI32' and 'y'
+            // was assigned an int32 value.
+
+        e_StoreDouble,
+            // Copy the value stored in the variable at 'y' into the address
+            // stored in the variable at 'x'; the behavior is undefined unless
+            // this address was allocated by the opcode 'e_AllocateDouble' and
+            // 'y' was assigned a double value.
+
+        e_Load,
+            // Assign, to the variable at 'dest', the value stored in the
+            // address at 'x'.  The behavior is undefined unless this
+            // address was iniitialized at least once with the opcode
+            // 'e_Store'.
+
+        e_LoadI32,
+            // Assign, to the variable at 'dest', the value stored in the
+            // address at 'x'.  The behavior is undefined unless this
+            // address was iniitialized at least once with the opcode
+            // 'e_StoreI32'.
+
+        e_LoadDouble,
+            // Assign, to the variable at 'dest', the value stored in the
+            // address at 'x'.  The behavior is undefined unless this
+            // address was iniitialized at least once with the opcode
+            // 'e_StoreDouble'.
+
+        e_EqI32,
+            // Assign , in the variable at 'dest', 1 if the variables at the
+            // indices 'x' and 'y' have the same value and 0 otherwise.  The
+            // behavior is undefined unless 'x' and 'y' were assigned int32
+            // values.
+
+        e_Const,
+            // Assign 'value' to the variable at 'dest'.
+
+        e_ConstI32,
+            // Assign the integer in 'value' to the variable at 'dest'.
+
+        e_ConstDouble,
+            // Assignh the double in 'value' to the variable at 'dest'.
 
         e_Jump,
-            // Jump to the bytecode at the index specified in the integer of
-            // the data stored in this object.
+            // Jump to the bytecode at 'offset'.
 
-        e_If,
-            // If the boolean value on the top of the stack is true, jump to
-            // the offset stored in this code; othewise, proceed to the next
-            // code.
+        e_IfI32,
+            // If the value at the integer store in the variable at 'x' is 1,
+            // jump to 'offset'.  Otherwise, do nothing.  The behavior is
+            // undefined unless the variableo at 'x' was assigned an integer.
 
-        e_IfEqInts,
-            // Pop the two integers on the top of the stack. If they are equal
-            // jump to the offset stored in this code; otherwise, proceed to
-            // the next code.
-
-        e_EqInts,
-            // Pop the two integers on the top of the stack.  Push 'true' on
-            // the stack if they are the same and 'false' otherwise.
-
-        e_IncInt,
-            // Increment the local variable stored in the index indicated by
-            // the integer in the data for this code.
-
-        e_AddDoubles,
-            // Pop the top two arguments on the stack, add them, and push
-            // the result.
-
-        e_AddInts,
-            // Pop the top two arguments on the stack, add them, and push
-            // the result.
+        e_AddI32,
+            // Assign, to the variable at 'dest', the result of adding the
+            // values at 'x' and 'y'.  The behavior is undefined unless 'x' and
+            // 'y' have been assigned int32 values.
 
         e_Call,
             // The top value on the stack is an integer with the number of
@@ -126,17 +149,18 @@ class Bytecode {
             // populating new values with 'DatumUdtUtil::e_Undefined'.
     };
 
-    static const int s_MinInitialStackSize = 8;
-        // The minimum number of values on the stack when a function starts.
-
   private:
     // FRIENDS
     friend bool operator==(const Bytecode& lhs, const Bytecode& rhs);
 
     // DATA
-    Datum  d_x;
-    Datum  d_y;
+    Datum  d_value;     // constant value
     Opcode d_opcode;    // operation for this bytecode
+    short  d_dest;      // index of a variable to assign to
+    short  d_x;         // x argument variable index
+    short  d_y;         // y argument variable index
+    short  d_offset;    // opcode offset
+
   public:
     // CLASS METHODS
 
