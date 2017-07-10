@@ -79,5 +79,14 @@ $ ../../tools/test.bash
 
 The following templates are provided:
 
-- `src/groups/sjt` -- sample package group
-- `src/apps/evalbytecode` -- sample evaluating the bytecode DSL
+- `src/groups/sjt` -- package group
+- `src/apps/evalbytecode` -- application for evaluating the bytecode DSL
+
+Note that you can build a single application, package group,  or test at a
+time:
+
+``` bash
+$ ninja evalbytecode
+$ ninja sjt
+$ ninja sjtd_datumfactory.t
+```
