@@ -19,6 +19,10 @@
 #include <bslmf_nestedtraitdeclaration.h>
 #endif
 
+#ifndef INCLUDED_sJTT_FUNCTION
+#include <sjtt_function.h>
+#endif
+
 namespace sjtt {
 class ExecutionContext;
 
@@ -95,7 +99,7 @@ class Bytecode {
             // 'e_StoreDouble'.
 
         e_EqI32,
-            // Assign , in the variable at 'dest', 1 if the variables at the
+            // Assign, in the variable at 'dest', 1 if the variables at the
             // indices 'x' and 'y' have the same value and 0 otherwise.  The
             // behavior is undefined unless 'x' and 'y' were assigned int32
             // values.
@@ -107,7 +111,15 @@ class Bytecode {
             // Assign the integer in 'value' to the variable at 'dest'.
 
         e_ConstDouble,
-            // Assignh the double in 'value' to the variable at 'dest'.
+            // Assign the double in 'value' to the variable at 'dest'.
+
+        e_ExtractI32,
+            // Assign the integer value in the variable at 'x' to the variable
+            // at 'dest'.
+
+        e_ExtractDouble,
+            // Assign the double value in the variable at 'x' to the variable
+            // at 'dest'.
 
         e_Jump,
             // Jump to the bytecode at 'offset'.
@@ -123,30 +135,12 @@ class Bytecode {
             // 'y' have been assigned int32 values.
 
         e_Call,
-            // The top value on the stack is an integer with the number of
-            // arguments for the call. Create, and begin evaluating, a new
-            // frame with a program counter set to the index indicated by the
-            // data associated with this opcode, passing a pointer to the
-            // arguments that are on the stack.
+            // Call 'function' with 'args' and store assign the result to
+            // 'dest'.  The behavior is undefined unless 'args' contains the
+            // number of arguments required by 'function'.
 
-        e_Execute,
-             // Pop the external function from the top of the stack, pop
-             // the integer value containing the number of arguments for the
-             // function, pop that number of values off the stack and invoke
-             // the function with those valuse as arguments.  Push the return
-             // value of the function on the stack.
-
-        e_Exit,
-            // Stop executing the current frame.  If the current frame is the
-            // last one, return the value at the top of the current stack;
-            // otherwise, store this value, return to the previous frame, pop,
-            // from its stack, the argument count and arguments from its stack,
-            // push onto its stack the return value, and resume executing.
-
-        e_Resize,
-            // Set the stack for the current frame to the size specified by the
-            // integer stored with this opcode, popping excess values and
-            // populating new values with 'DatumUdtUtil::e_Undefined'.
+        e_Return,
+            // Return the value stored in 'x' from this function.
     };
 
   private:
@@ -154,21 +148,98 @@ class Bytecode {
     friend bool operator==(const Bytecode& lhs, const Bytecode& rhs);
 
     // DATA
-    Datum  d_value;     // constant value
-    Opcode d_opcode;    // operation for this bytecode
+    union {
+        Datum    d_value;     // constant value
+        Function d_function;  // function to call
+    };
+    union {
+        struct {
+            short  d_offset;    // opcode offset
+            short  d_x;         // x argument variable index
+            short  d_y;         // y argument variable index
+        };
+        struct {
+            const short *d_args_p;  // indices of arguments; held, not owned
+        };
+    };
     short  d_dest;      // index of a variable to assign to
-    short  d_x;         // x argument variable index
-    short  d_y;         // y argument variable index
-    short  d_offset;    // opcode offset
+    Opcode d_opcode;    // operation for this bytecode
 
   public:
     // CLASS METHODS
+    static Bytecode createAllocate(short dest);
+        // Return a 'Bytecode' object that represents an 'e_Allocate'
+        // operation having the specified 'dest'.
 
-    static Bytecode createOpcode(Opcode       opcode,
-                                 const Datum& x = Datum::createNull(),
-                                 const Datum& y = Datum::createNull());
-        // Return a new 'Bytecode' object having the specified 'opcode', 'x',
-        // and 'y'.
+    static Bytecode createAllocateI32(short dest);
+        // Return a 'Bytecode' object that represents an 'e_AllocateI32'
+        // operation having the specified 'dest'.
+
+    static Bytecode createAllocateDouble(short dest);
+        // Return a 'Bytecode' object that reprents an 'e_AllocateDouble'
+        // operation having the specified 'dest'.
+
+    static Bytecode createStore(short x, short y);
+        // Return a 'Bytecode' object that represents an 'e_Store' operation
+        // having the specified 'x' and 'y'.
+
+    static Bytecode createStoreI32(short x, short y);
+        // Return a 'Bytecode' object that represents an 'e_StoreI32' operation
+        // having the specified 'x' and 'y'.
+
+    static Bytecode createStoreDouble(short x, short y);
+        // Return a 'Bytecode' object that represents an 'e_StoreDouble'
+        // operation having the specified 'x' and 'y'.
+
+    static Bytecode createLoad(short dest, short x);
+        // Return a 'Bytecode' object that represents an 'e_Load' operation
+        // having the specified 'dest' and 'x'.
+
+    static Bytecode createLoadI32(short dest, short x);
+        // Return a 'Bytecode' object that represents an 'e_LoadI32' operation
+        // having the specified 'dest' and 'x'.
+
+    static Bytecode createLoadDouble(short dest, short x);
+        // Return a 'Bytecode' object that represents an 'e_LoadDouble'
+        // operation having the specified 'dest' and 'x'.
+
+    static Bytecode createEqI32(short dest, short x, short y);
+        // Return a 'Bytecode' object that represents an 'e_EqI32' operation
+        // having the specified 'dest', 'x', and 'y'.
+
+    static Bytecode createConst(short dest, const Datum& value);
+        // Return a 'Bytecode' object that represents an 'e_Const' operation
+        // having the specified 'dest' and 'value'.
+
+    static Bytecode createExtractI32(short dest, short x);
+        // Return a 'Bytecode' object that represents an 'e_ExtractI32'
+        // operation having the specified 'dest' and 'x'.
+
+    static Bytecode createExtractDouble(short dest, short x);
+        // Return a 'Bytecode' object that represents an 'e_ExtractDouble'
+        // operation having the specified 'dest' and 'x'.
+
+    static Bytecode createJump(short offset);
+        // Return a 'Bytecode' object that represents an 'e_Jump' operation
+        // having the specified 'offset'.
+
+    static Bytecode createIfI32(short x, short offset);
+        // Return a 'Bytecode' object that represents an 'e_IfI32' operation
+        // having the specified 'x' and 'offset'.
+
+    static Bytecode createAddI32(short dest, short x, short y);
+        // Return a 'Bytecode' object that represenbts an 'e_AddI32' operation
+        // having the specified 'dest', x', and 'y'.
+
+    static Bytecode createCall(short            dest,
+                               const Function&  function,
+                               const short     *args);
+        // Return a 'Bytecode' object that represents an 'e_Call' operation
+        // having the specified 'dest', 'function', and 'args'.
+
+    static Bytecode createReturn(short x);
+        // Return a 'Bytecode' object that represents an 'e_Return' operation
+        // having the specified 'x'.
 
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(Bytecode, bsl::is_trivially_copyable);
