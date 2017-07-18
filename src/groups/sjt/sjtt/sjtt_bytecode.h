@@ -236,7 +236,8 @@ class Bytecode {
                                const Function&  function,
                                const short     *args);
         // Return a 'Bytecode' object that represents an 'e_Call' operation
-        // having the specified 'dest', 'function', and 'args'.
+        // having the specified 'dest', 'function', and 'args'.  The behavior
+        // is undefined unless '0 != args || 0 == function.argCount()'.
 
     static Bytecode createReturn(short x);
         // Return a 'Bytecode' object that represents an 'e_Return' operation
@@ -460,6 +461,7 @@ Bytecode Bytecode::createCall(short            dest,
                               const Function&  function,
                               const short     *args)
 {
+    BSLS_ASSERT(0 != args || 0 == function.argCount());
     Bytecode result;
     result.d_opcode = e_Call;
     result.d_dest = dest;

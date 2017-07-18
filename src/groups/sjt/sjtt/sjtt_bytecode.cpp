@@ -57,7 +57,7 @@ bool operator==(const Bytecode& lhs, const Bytecode& rhs) {
         // Note that for 'e_Call' we test that the argument indices are
         // deeply-equal.
 
-        if (lhs.d_function != rhs.d_function) {
+        if (lhs.d_dest != rhs.d_dest || lhs.d_function != rhs.d_function) {
             return false;
         }
         return 0 == ::memcmp(
