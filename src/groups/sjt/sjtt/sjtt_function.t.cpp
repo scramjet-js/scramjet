@@ -4,8 +4,6 @@
 
 #include <bdls_testutil.h>
 
-#include <sjtt_bytecode.h>
-
 using namespace BloombergLP;
 using namespace bsl;
 using namespace sjtt;
@@ -70,22 +68,22 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl
                           << "operator== && operator!=" << endl
                           << "==========" << endl;
-        Bytecode code1 = Bytecode::createOpcode(Bytecode::e_Exit);
-        Bytecode code2 = Bytecode::createOpcode(Bytecode::e_Exit);
-        const Function f(&code1, 1, 2);
-        ASSERT(f == Function(&code1, 1, 2));
-        ASSERT(!(f != Function(&code1, 1, 2)));
-        ASSERT(f != Function(&code2, 1, 2));
-        ASSERT(f != Function(&code1, 2, 2));
-        ASSERT(f != Function(&code1, 1, 4));
+        const Bytecode *code1 = reinterpret_cast<const Bytecode *>("hello");
+        const Bytecode *code2 = reinterpret_cast<const Bytecode *>("world");
+        const Function f = Function::createFunction(code1, 1, 2);
+        ASSERT(f == Function::createFunction(code1, 1, 2));
+        ASSERT(!(f != Function::createFunction(code1, 1, 2)));
+        ASSERT(f != Function::createFunction(code2, 1, 2));
+        ASSERT(f != Function::createFunction(code1, 2, 2));
+        ASSERT(f != Function::createFunction(code1, 1, 4));
       } break;
       case 1: {
         if (verbose) cout << endl
-                          << "constructor and basic acccessors" << endl
+                          << "createFunction and basic acccessors" << endl
                           << "================================" << endl;
-        Bytecode code = Bytecode::createOpcode(Bytecode::e_Exit);
-        Function f(&code, 1, 2);
-        ASSERT(&code == f.code());
+        const Bytecode *code = reinterpret_cast<const Bytecode *>("hello");
+        Function f = Function::createFunction(code, 1, 2);
+        ASSERT(code == f.code());
         ASSERT(1 == f.argCount());
         ASSERT(2 == f.numLocals());
       } break;

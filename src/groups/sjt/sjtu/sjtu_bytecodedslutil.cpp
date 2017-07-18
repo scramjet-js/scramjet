@@ -9,7 +9,7 @@
 #include <bslstl_istringstream.h>
 
 using namespace BloombergLP;
-
+/*
 namespace sjtu {
 namespace {
 
@@ -406,3 +406,4 @@ int BytecodeDSLUtil::readDSL(bsl::vector<sjtt::Bytecode>     *result,
     return 0;
 }
 }
+*/

@@ -99,10 +99,10 @@ class Bytecode {
             // 'e_StoreDouble'.
 
         e_EqI32,
-            // Assign, in the variable at 'dest', 1 if the variables at the
-            // indices 'x' and 'y' have the same value and 0 otherwise.  The
-            // behavior is undefined unless 'x' and 'y' were assigned int32
-            // values.
+            // Assign, in the variable at 'dest', a non-zero value if the
+            // variables at the indices 'x' and 'y' have the same value and 0
+            // otherwise.  The behavior is undefined unless 'x' and 'y' were
+            // assigned int32 values.
 
         e_Const,
             // Assign 'value' to the variable at 'dest'.
@@ -125,9 +125,10 @@ class Bytecode {
             // Jump to the bytecode at 'offset'.
 
         e_IfI32,
-            // If the value at the integer store in the variable at 'x' is 1,
-            // jump to 'offset'.  Otherwise, do nothing.  The behavior is
-            // undefined unless the variableo at 'x' was assigned an integer.
+            // If the value at the integer store in the variable at 'x' is
+            // non-zero, jump to 'offset'.  Otherwise, do nothing.  The
+            // behavior is undefined unless the variableo at 'x' was assigned
+            // an integer.
 
         e_AddI32,
             // Assign, to the variable at 'dest', the result of adding the
@@ -248,40 +249,44 @@ class Bytecode {
     BSLMF_NESTED_TRAIT_DECLARATION(Bytecode,
                                    BloombergLP::bslmf::IsBitwiseMoveable);
 
-    // CREATORS
-    //! Bytecode() = default;
-        // Create a bytecode having an uninitialized value.  The behavior for
-        // every accessor method is undefined until this object is assigned a
-        // value.
-
-    //! Bytecode(const Bytecode& original) = default;
-        // Create a bytecode having the value of the specified 'original'.
-
-    //! ~Bytecode() = default;
-        // Destroy this object. Note that this method does not deallocate any
-        // dynamically allocated memory used by this object (see 'destroy').
-
-    // MANIPULATORS
-    //! Bytecode& operator=(const Bytecode& rhs) = default;
-        // Assign to this object the value of the specified 'rhs' object. Note
-        // that this method's definition is compiler generated.
-
     // ACCESSORS
+    const Datum& value() const;
+        // Return the 'value' of this object.  The behavior is undefined unless
+        // 'value' was initialized.
+
+    const Function& function() const;
+        // Return the 'function' of this object.  The behavior is undefined
+        // unless 'function' was initialized.
+
+    short offset() const;
+        // Return the 'offset' of this object.  The behavior is undefined
+        // unless 'offset' was initialized.
+
+    short x() const;
+        // Return the 'x' of this object.  The behavior is undefined unless
+        // 'x' was initialized.
+
+    short y() const;
+        // Return the 'y' of this object.  The behavior is undefined unless
+        // 'y' was initialized.
+
+    const short *args() const;
+         // Return the 'args' of this object.  The behavior is undefined unless
+         // 'args' was initialized.
+
+    short dest() const;
+        // Return the 'dest' of this object.  The behavior is undefined unless
+        // 'dest' was initialized.
+
     Opcode opcode() const;
-        // Return the opcode associated with this object.
-
-    const Datum& x() const;
-        // Return the 'x' for this object.
-
-    const Datum& y() const;
-        // Return the 'y' for this object.
+        // Return the opcode of this object.
 };
 
 // FREE OPERATORS
 bool operator==(const Bytecode& lhs, const Bytecode& rhs);
     // Return true if the specified 'lhs' and 'rhs' represent the same value.
     // Two 'Bytecode' objects represnet the same value if they have the same
-    // 'data' and 'opcode'.
+    // 'opcode' and associated arguments.
 
 
 // ============================================================================
@@ -293,35 +298,232 @@ bool operator==(const Bytecode& lhs, const Bytecode& rhs);
                                // --------------
 // CLASS METHODS
 inline
-Bytecode Bytecode::createOpcode(Opcode opcode, const Datum& x, const Datum& y)
+Bytecode Bytecode::createAllocate(short dest)
 {
     Bytecode result;
+    result.d_opcode = e_Allocate;
+    result.d_dest = dest;
+    return result;
+}
+
+inline
+Bytecode Bytecode::createAllocateI32(short dest)
+{
+    Bytecode result;
+    result.d_opcode = e_AllocateI32;
+    result.d_dest = dest;
+    return result;
+}
+
+inline
+Bytecode Bytecode::createAllocateDouble(short dest)
+{
+    Bytecode result;
+    result.d_opcode = e_AllocateDouble;
+    result.d_dest = dest;
+    return result;
+}
+
+inline
+Bytecode Bytecode::createStore(short x, short y)
+{
+    Bytecode result;
+    result.d_opcode = e_Store;
     result.d_x = x;
     result.d_y = y;
     return result;
 }
 
-// ACCESSORS
 inline
-const BloombergLP::bdld::Datum& Bytecode::x() const {
+Bytecode Bytecode::createStoreI32(short x, short y)
+{
+    Bytecode result;
+    result.d_opcode = e_StoreI32;
+    result.d_x = x;
+    result.d_y = y;
+    return result;
+}
+
+inline
+Bytecode Bytecode::createStoreDouble(short x, short y)
+{
+    Bytecode result;
+    result.d_opcode = e_StoreDouble;
+    result.d_x = x;
+    result.d_y = y;
+    return result;
+}
+
+inline
+Bytecode Bytecode::createLoad(short dest, short x)
+{
+    Bytecode result;
+    result.d_opcode = e_Load;
+    result.d_dest = dest;
+    result.d_x = x;
+    return result;
+}
+
+inline
+Bytecode Bytecode::createLoadI32(short dest, short x)
+{
+    Bytecode result;
+    result.d_opcode = e_LoadI32;
+    result.d_dest = dest;
+    result.d_x = x;
+    return result;
+}
+
+inline
+Bytecode Bytecode::createLoadDouble(short dest, short x)
+{
+    Bytecode result;
+    result.d_opcode = e_LoadDouble;
+    result.d_dest = dest;
+    result.d_x = x;
+    return result;
+}
+
+inline
+Bytecode Bytecode::createEqI32(short dest, short x, short y)
+{
+    Bytecode result;
+    result.d_opcode = e_EqI32;
+    result.d_dest = dest;
+    result.d_x = x;
+    result.d_y = y;
+    return result;
+}
+
+inline
+Bytecode Bytecode::createConst(short dest, const Datum& value)
+{
+    Bytecode result;
+    result.d_opcode =  e_Const;
+    result.d_dest = dest;
+    result.d_value = value;
+    return result;
+}
+
+inline
+Bytecode Bytecode::createExtractI32(short dest, short x)
+{
+    Bytecode result;
+    result.d_opcode = e_ExtractI32;
+    result.d_dest = dest;
+    result.d_x = x;
+    return result;
+}
+
+inline
+Bytecode Bytecode::createExtractDouble(short dest, short x)
+{
+    Bytecode result;
+    result.d_opcode = e_ExtractDouble;
+    result.d_dest = dest;
+    result.d_x = x;
+    return result;
+}
+
+inline
+Bytecode Bytecode::createJump(short offset)
+{
+    Bytecode result;
+    result.d_opcode = e_Jump;
+    result.d_offset = offset;
+    return result;
+}
+
+inline
+Bytecode Bytecode::createIfI32(short x, short offset)
+{
+    Bytecode result;
+    result.d_opcode = e_IfI32;
+    result.d_x = x;
+    result.d_offset = offset;
+    return result;
+}
+
+inline
+Bytecode Bytecode::createAddI32(short dest, short x, short y)
+{
+    Bytecode result;
+    result.d_opcode = e_AddI32;
+    result.d_dest = dest;
+    result.d_x = x;
+    result.d_y = y;
+    return result;
+}
+
+inline
+Bytecode Bytecode::createCall(short            dest,
+                              const Function&  function,
+                              const short     *args)
+{
+    Bytecode result;
+    result.d_opcode = e_Call;
+    result.d_dest = dest;
+    result.d_function = function;
+    result.d_args_p = args;
+    return result;
+}
+
+inline
+Bytecode Bytecode::createReturn(short x)
+{
+    Bytecode result;
+    result.d_opcode = e_Return;
+    result.d_x = x;
+    return result;
+}
+
+// ACCESSORS
+
+inline
+const Bytecode::Datum& Bytecode::value() const
+{
+    return d_value;
+}
+
+inline
+const Function& Bytecode::function() const
+{
+    return d_function;
+}
+
+inline
+short Bytecode::offset() const
+{
+    return d_offset;
+}
+
+inline
+short Bytecode::x() const
+{
     return d_x;
 }
 
 inline
-const BloombergLP::bdld::Datum& Bytecode::y() const {
+short Bytecode::y() const
+{
     return d_y;
+}
+
+inline
+const short *Bytecode::args() const
+{
+    return d_args_p;
+}
+
+inline
+short Bytecode::dest() const
+{
+    return d_dest;
 }
 
 inline
 Bytecode::Opcode Bytecode::opcode() const {
     return d_opcode;
-}
-
-// FREE OPERATORS
-inline bool operator==(const Bytecode& lhs, const Bytecode& rhs) {
-    return lhs.d_opcode == rhs.d_opcode &&
-        lhs.d_x == rhs.d_x &&
-        lhs.d_y == rhs.d_y;
 }
 }
 

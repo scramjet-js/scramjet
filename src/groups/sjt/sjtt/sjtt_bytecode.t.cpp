@@ -64,46 +64,11 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 3: {
-        if (verbose) cout << endl
-                          << "createOpcode(Opcode, Datum)" << endl
-                          << "===========================" << endl;
-
-        // same
-
-        ASSERT(Bytecode::createOpcode(Bytecode::e_Exit) ==
-               Bytecode::createOpcode(Bytecode::e_Exit));
-
-        // different opcode
-
-        ASSERT(!(Bytecode::createOpcode(Bytecode::e_Exit) ==
-               Bytecode::createOpcode(Bytecode::e_Push)));
-
-        // different data
-
-        ASSERT(!(Bytecode::createOpcode(Bytecode::e_Push,
-                                      bdld::Datum::createNull()) ==
-               Bytecode::createOpcode(Bytecode::e_Push,
-                                      bdld::Datum::createInteger(1))));
-      } break;
-      case 2: {
-        if (verbose) cout << endl
-                          << "createOpcode(Opcode, Datum)" << endl
-                          << "===========================" << endl;
-
-        const bdld::Datum d = bdld::Datum::createInteger(3);
-        const Bytecode code = Bytecode::createOpcode(Bytecode::e_Push, d);
-        ASSERT(Bytecode::e_Push == code.opcode());
-        ASSERT(d == code.data());
-      } break;
       case 1: {
         if (verbose) cout << endl
                           << "createOpcode(Opcode)" << endl
                           << "====================" << endl;
 
-        const Bytecode code = Bytecode::createOpcode(Bytecode::e_AddDoubles);
-        ASSERT(Bytecode::e_AddDoubles == code.opcode());
-        ASSERT(code.data().isNull());
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

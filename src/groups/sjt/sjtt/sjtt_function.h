@@ -40,23 +40,17 @@ class Function {
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(Function, bsl::is_trivially_copyable);
     BSLMF_NESTED_TRAIT_DECLARATION(Function,
+                                   bsl::is_trivially_default_constructible);
+    BSLMF_NESTED_TRAIT_DECLARATION(Function,
                                    BloombergLP::bslmf::IsBitwiseMoveable);
 
     // CREATORS
-    Function(const Bytecode *code,
-             int             argCount,
-             int             numLocals);
+    static Function createFunction(const Bytecode *code,
+                                   int             argCount,
+                                   int             numLocals);
         // Create a new 'Fnction' object having the specified 'code',
         // 'argCount', and 'numLocals'.  The behavior is undefined unless
         // '0 <= argCount' and '0 <= numLocals'.
-
-    Function(const Function& original) = default;
-        // Create a function having the value of the specified 'original'.
-
-    // MANIPULATORS
-    Function& operator=(const Function& rhs) = default;
-        // Assign to this object the value of the specified 'rhs' object. Note
-        // that this method's definition is compiler generated.
 
     // ACCESSORS
     int argCount() const;
@@ -94,16 +88,18 @@ bool operator!=(const Function& lhs, const Function& rhs);
                                // --------------
 // CLASS METHODS
 inline
-Function::Function(const Bytecode *code,
-                   int             argCount,
-                   int             numLocals)
-: d_code_p(code)
-, d_argCount(argCount)
-, d_numLocals(numLocals)
+Function Function::createFunction(const Bytecode *code,
+                                  int             argCount,
+                                  int             numLocals)
 {
     BSLS_ASSERT(0 != code);
     BSLS_ASSERT(0 <= argCount);
     BSLS_ASSERT(0 <= numLocals);
+    Function result;
+    result.d_code_p = code;
+    result.d_argCount = argCount;
+    result.d_numLocals = numLocals;
+    return result;
 }
 
 // ACCESSORS
