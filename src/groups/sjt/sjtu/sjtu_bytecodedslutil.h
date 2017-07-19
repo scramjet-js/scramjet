@@ -53,7 +53,7 @@ struct BytecodeDSLUtil {
     // load          = 'L'<int>','<int>
     // loadI32       = 'Li'<int>','<int>
     // loadDbl       = 'Ld'<int>','<int>
-    // eqI32         = '=i'<int>','<int>
+    // eqI32         = '=i'<int>','<int>,<int>
     // const         = 'C'<int>','<datum>
     // extractI32    = 'Ei'<int>','<int>
     // extractDbl    = 'Ed'<int>','<int>
@@ -62,7 +62,7 @@ struct BytecodeDSLUtil {
     // addI32        = '+i'<int>','<int>','<int>
     // call          = '()'<int>','<name>(','<int>)*'
     // return        = 'R'<int>
-    // datum         = 'd'<double> | 'i'<int>
+    // datum         = 'T' | 'F' | 'd'<double> | 'i'<int>
     //
     // Example:
     //     "C8,d3|()9,foo,1,2,8|R9"
@@ -108,7 +108,7 @@ struct BytecodeDSLUtil {
         // 'functions' map.  Note that the state of 'result' after a failed
         // parse is undefined.  Note also that the allocator associated with
         // 'result' is used to allocate memory for any returned 'Datum'
-        // objects.
+        // objects or argument arrays.
 };
 }
 

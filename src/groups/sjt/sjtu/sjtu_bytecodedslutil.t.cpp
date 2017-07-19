@@ -59,12 +59,6 @@ void aSsErT(bool condition, const char *message, int line)
 #define L_           BDLS_TESTUTIL_L_  // current Line number
 
 
-namespace {
-bdld::Datum testFun(const sjtt::ExecutionContext& context) {
-    return bdld::Datum::createNull();
-}
-}
-
 // ============================================================================
 //                               MAIN PROGRAM
 // ----------------------------------------------------------------------------
@@ -85,7 +79,12 @@ int main(int argc, char *argv[])
         bdlma::SequentialAllocator alloc;
         const sjtd::DatumFactory f(&alloc);
 
-        BytecodeDSLUtil::FunctionNameToAddressMap functions;
+        const sjtt::Bytecode *code =
+            reinterpret_cast<const sjtt::Bytecode *>("hello");
+        const sjtt::Function testFun = sjtt::Function::createFunction(code,
+                                                                      2,
+                                                                      2);
+        BytecodeDSLUtil::FunctionMap functions;
         functions["foo"] = testFun;
 
         typedef sjtt::Bytecode BC;
@@ -106,149 +105,73 @@ int main(int argc, char *argv[])
                 "invalid opcode at position: 0 -- '''",
             },
             {
-                "push",
-                "Pi2",
+                "allocate",
+                "A2",
                 false,
-                { BC::createOpcode(BC::e_Push, f(2)) },
+                { BC::createAllocate(2) },
                 "",
             },
             {
-                "push foo",
-                "Pefoo",
+                "allocateI32",
+                "Ai2",
                 false,
-                { BC::createOpcode(BC::e_Push, f(testFun)) },
+                { BC::createAllocateI32(2) },
                 "",
             },
             {
-                "bad push",
-                "P",
-                true,
-                {},
-                "failed to parse code 'P' from '' at position: 0 -- invalid "
-                 "datum",
-            },
-            { "load", "L3", false, { BC::createOpcode(BC::e_Load, f(3)) } },
-            {
-                "bad load",
-                "Lx",
-                true,
-                {},
-                "failed to parse code 'L' from 'x' at position: 0 -- invalid "
-                "index",
-            },
-            { "store", "S8", false, { BC::createOpcode(BC::e_Store, f(8)) } },
-            {
-                "bad store",
-                "Si",
-                true,
-                {},
-                "failed to parse code 'S' from 'i' at position: 0 -- invalid "
-                "index",
-            },
-            { "jump", "J8", false, { BC::createOpcode(BC::e_Jump, f(8)) } },
-            {
-                "bad jump",
-                "Ji",
-                true,
-                {},
-                "failed to parse code 'J' from 'i' at position: 0 -- invalid "
-                "index",
-            },
-            { "if", "I8", false, { BC::createOpcode(BC::e_If, f(8)) } },
-            {
-                "bad if",
-                "Ii",
-                true,
-                {},
-                "failed to parse code 'I' from 'i' at position: 0 -- invalid "
-                "index",
-            },
-            {
-                "if eq ints",
-                "I=i8",
+                "allocateDbl",
+                "Ad2",
                 false,
-                { BC::createOpcode(BC::e_IfEqInts, f(8)) }
+                { BC::createAllocateDouble(2) },
+                "",
             },
             {
-                "bad if eq ints",
-                "I=ii",
-                true,
-                {},
-                "failed to parse code 'I=i' from 'i' at position: 0 -- "
-                "invalid index",
-            },
-            { "= ints", "=i", false, { BC::createOpcode(BC::e_EqInts)}},
-            { "++int", "++i1", false, { BC::createOpcode(BC::e_IncInt, f(1))}},
-            { "+ doubles", "+d", false, { BC::createOpcode(BC::e_AddDoubles)}},
-            { "+ ints", "+i", false, { BC::createOpcode(BC::e_AddInts)}},
-            { "call", "C8", false, { BC::createOpcode(BC::e_Call, f(8)) } },
-            {
-                "bad call",
-                "Ci",
-                true,
-                {},
-                "failed to parse code 'C' from 'i' at position: 0 -- invalid "
-                "index",
-            },
-            { "exec", "E", false, { BC::createOpcode(BC::e_Execute) } },
-            {
-                "bad exec",
-                "E8",
-                true,
-                {},
-                "failed to parse code 'E' from '8' at position: 0 -- trailing "
-                "data",
-            },
-            { "exit", "X", false, { BC::createOpcode(BC::e_Exit) } },
-            {
-                "bad exit",
-                "X8",
-                true,
-                {},
-                "failed to parse code 'X' from '8' at position: 0 -- trailing "
-                "data",
-            },
-            {
-                "resize",
-                "V8",
+                "store",
+                "S3,4",
                 false,
-                { BC::createOpcode(BC::e_Resize, f(8)) },
+                { BC::createStore(3, 4) },
+                "",
             },
             {
-                "bad resize",
-                "Vi",
-                true,
-                {},
-                "failed to parse code 'V' from 'i' at position: 0 -- invalid "
-                "index",
-            },
-
-            // combinations
-            { "sequence term", "X|", false, { BC::createOpcode(BC::e_Exit) } },
-            {
-                "empty second",
-                "X||",
-                true,
-                {},
-                "empty bytecode beginning at position: 2"
-            },
-            {
-                "bad second",
-                "X|]",
-                true,
-                {},
-                "invalid opcode at position: 2 -- ']'"
-            },
-            {
-                "sequence",
-                "Pd2|Pd4|+d|X",
+                "storeI32",
+                "Si3,4",
                 false,
-                {
-                    BC::createOpcode(BC::e_Push, f(2.)),
-                    BC::createOpcode(BC::e_Push, f(4.)),
-                    BC::createOpcode(BC::e_AddDoubles),
-                    BC::createOpcode(BC::e_Exit)
-                },
+                { BC::createStoreI32(3, 4) },
+                "",
+            },
+            {
+                "storeDbl",
+                "Sd3,4",
+                false,
+                { BC::createStoreDouble(3, 4) },
+                "",
+            },
+            {
+                "load",
+                "L6,7",
+                false,
+                { BC::createLoad(6,7) },
+                "",
+            },
+            {
+                "loadI32",
+                "Li6,7",
+                false,
+                { BC::createLoadI32(6,7) },
+                "",
+            },
+            {
+                "loadDbl",
+                "Ld6,7",
+                false,
+                { BC::createLoadDouble(6,7) },
+                "",
+            },
+            {
+                "eqI32",
+                "=i4,5,6",
+                false,
+                { BC::createEqI32(4, 5, 6) },
                 "",
             },
         };
@@ -284,9 +207,6 @@ int main(int argc, char *argv[])
         bdlma::SequentialAllocator alloc;
         const sjtd::DatumFactory f(&alloc);
 
-        BytecodeDSLUtil::FunctionNameToAddressMap functions;
-        functions["foo"] = testFun;
-
         const struct Case {
             const char  *name;
             const char  *input;
@@ -302,9 +222,6 @@ int main(int argc, char *argv[])
             { "int", "i6", false, f(6), 0 },
             { "bad int", "iq", true, f(),
                 "unable to parse integer from 'q'" },
-            { "bad fun name", "ebar", true, f(),
-                "unknown function name 'bar'" },
-            { "good fun name", "efoo", false, f(testFun), 0 },
             { "true", "T", false, f(true) },
             { "false", "F", false, f(false) },
         };
@@ -315,8 +232,7 @@ int main(int argc, char *argv[])
             const int ret = BytecodeDSLUtil::readDatum(&result,
                                                        &errorMessage,
                                                        &alloc,
-                                                       c.input,
-                                                       functions);
+                                                       c.input);
             if (c.fails) {
                 LOOP_ASSERT(c.name, ret != 0);
                 LOOP2_ASSERT(c.name,

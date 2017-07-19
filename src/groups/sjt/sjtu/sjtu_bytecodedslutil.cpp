@@ -9,21 +9,21 @@
 #include <bslstl_istringstream.h>
 
 using namespace BloombergLP;
-/*
 namespace sjtu {
 namespace {
 
 using bdld::Datum;
 using bslstl::StringRef;
 using sjtt::Bytecode;
-typedef BytecodeDSLUtil::FunctionNameToAddressMap FunctionNameToAddressMap;
+typedef BytecodeDSLUtil::FunctionMap FunctionMap;
 
 
-int parseInt(const StringRef& data) {
+short parseShort(const StringRef& data)
     // Return the integer stored in specified 'data', or a value less than zero
     // if no valid address can be found.
+{
 
-    int result;
+    short result;
     bsl::istringstream is(data);
     if (is >> result) {
         return result;
@@ -31,219 +31,188 @@ int parseInt(const StringRef& data) {
     return -1;
 }
 
-int parsePush(Bytecode                        *result,
-              bsl::string                     *errorMessage,
-              bslma::Allocator                *alloc,
-              const StringRef&                 data,
-              const FunctionNameToAddressMap&  functions)
+
+int parseShorts(bsl::vector<short> *dest, const StringRef& data)
+    // Parse, into the specified 'dest', the array of comma-separated shorts in
+    // the specified 'data' and return 0 if successful.  Otherwise, return a
+    // non-zero value.
+{
+    bsl::string next;
+    bsl::istringstream is(data);
+    while(bsl::getline(is, next, ',')) {
+        const short nextShort = parseShort(next);
+        if (0 > nextShort) {
+            return nextShort;
+        }
+        dest->push_back(nextShort);
+    }
+    return 0;
+}
+
+int parseAllocate(Bytecode           *result,
+                  bsl::string        *errorMessage,
+                  bslma::Allocator   *alloc,
+                  const StringRef&    data,
+                  const FunctionMap&  functions)
 {
     bsl::string datumError;
-    Datum value;
-    const int ret =
-       BytecodeDSLUtil::readDatum(&value, &datumError, alloc, data, functions);
-    if (0 > ret) {
-        *errorMessage = "invalid datum";
+    const int dest = parseShort(data);
+    if (0 > dest) {
+        *errorMessage = "invalid dest";
         return -1;
     }
-    *result = Bytecode::createOpcode(Bytecode::e_Push, value);
+    *result = Bytecode::createAllocate(dest);
     return 0;
 }
 
-int parseLoad(Bytecode                        *result,
-              bsl::string                     *errorMessage,
-              bslma::Allocator                *alloc,
-              const StringRef&                 data,
-              const FunctionNameToAddressMap&  functions)
+int parseAllocateI32(Bytecode           *result,
+                     bsl::string        *errorMessage,
+                     bslma::Allocator   *alloc,
+                     const StringRef&    data,
+                     const FunctionMap&  functions)
 {
-    const int addr = parseInt(data);
-    if (0 > addr) {
-        *errorMessage = "invalid index";
+    bsl::string datumError;
+    const int dest = parseShort(data);
+    if (0 > dest) {
+        *errorMessage = "invalid dest";
         return -1;
     }
-    *result = Bytecode::createOpcode(Bytecode::e_Load,
-                                     Datum::createInteger(addr));
+    *result = Bytecode::createAllocateI32(dest);
     return 0;
 }
 
-int parseStore(Bytecode                        *result,
-               bsl::string                     *errorMessage,
-               bslma::Allocator                *alloc,
-               const StringRef&                 data,
-               const FunctionNameToAddressMap&  functions)
+int parseAllocateDouble(Bytecode           *result,
+                        bsl::string        *errorMessage,
+                        bslma::Allocator   *alloc,
+                        const StringRef&    data,
+                        const FunctionMap&  functions)
 {
-    const int addr = parseInt(data);
-    if (0 > addr) {
-        *errorMessage = "invalid index";
+    const int dest = parseShort(data);
+    if (0 > dest) {
+        *errorMessage = "invalid dest";
         return -1;
     }
-    *result = Bytecode::createOpcode(Bytecode::e_Store,
-                                     Datum::createInteger(addr));
+    *result = Bytecode::createAllocateDouble(dest);
     return 0;
 }
 
-int parseJump(Bytecode                        *result,
-              bsl::string                     *errorMessage,
-              bslma::Allocator                *alloc,
-              const StringRef&                 data,
-              const FunctionNameToAddressMap&  functions)
+int parseStore(Bytecode           *result,
+               bsl::string        *errorMessage,
+               bslma::Allocator   *alloc,
+               const StringRef&    data,
+               const FunctionMap&  functions)
 {
-    const int addr = parseInt(data);
-    if (0 > addr) {
-        *errorMessage = "invalid index";
+    bsl::vector<short> shorts;
+    if (0 != parseShorts(&shorts, data) || 2 != shorts.size()) {
+        *errorMessage = "invalid arguments";
         return -1;
     }
-    *result = Bytecode::createOpcode(Bytecode::e_Jump,
-                                     Datum::createInteger(addr));
+    *result = Bytecode::createStore(shorts[0], shorts[1]);
     return 0;
 }
 
-int parseIf(Bytecode                        *result,
-            bsl::string                     *errorMessage,
-            bslma::Allocator                *alloc,
-            const StringRef&                 data,
-            const FunctionNameToAddressMap&  functions)
+int parseStoreI32(Bytecode           *result,
+                  bsl::string        *errorMessage,
+                  bslma::Allocator   *alloc,
+                  const StringRef&    data,
+                  const FunctionMap&  functions)
 {
-    const int addr = parseInt(data);
-    if (0 > addr) {
-        *errorMessage = "invalid index";
+    bsl::vector<short> shorts;
+    if (0 != parseShorts(&shorts, data) || 2 != shorts.size()) {
+        *errorMessage = "invalid arguments";
         return -1;
     }
-    *result = Bytecode::createOpcode(Bytecode::e_If,
-                                     Datum::createInteger(addr));
+    *result = Bytecode::createStoreI32(shorts[0], shorts[1]);
     return 0;
 }
 
-int parseIfIntsEq(Bytecode                        *result,
-                  bsl::string                     *errorMessage,
-                  bslma::Allocator                *alloc,
-                  const StringRef&                 data,
-                  const FunctionNameToAddressMap&  functions)
+int parseStoreDbl(Bytecode           *result,
+                  bsl::string        *errorMessage,
+                  bslma::Allocator   *alloc,
+                  const StringRef&    data,
+                  const FunctionMap&  functions)
 {
-    const int addr = parseInt(data);
-    if (0 > addr) {
-        *errorMessage = "invalid index";
+    bsl::vector<short> shorts;
+    if (0 != parseShorts(&shorts, data) || 2 != shorts.size()) {
+        *errorMessage = "invalid arguments";
         return -1;
     }
-    *result = Bytecode::createOpcode(Bytecode::e_IfEqInts,
-                                     Datum::createInteger(addr));
+    *result = Bytecode::createStoreDouble(shorts[0], shorts[1]);
     return 0;
 }
 
-int parseEqInts(Bytecode                        *result,
-                bsl::string                     *errorMessage,
-                bslma::Allocator                *alloc,
-                const StringRef&                 data,
-                const FunctionNameToAddressMap&  functions)
+int parseLoad(Bytecode           *result,
+              bsl::string        *errorMessage,
+              bslma::Allocator   *alloc,
+              const StringRef&    data,
+              const FunctionMap&  functions)
 {
-    if (!data.empty()) {
-        *errorMessage = "trailing data";
+    bsl::vector<short> shorts;
+    if (0 != parseShorts(&shorts, data) || 2 != shorts.size()) {
+        *errorMessage = "invalid arguments";
         return -1;
     }
-    *result = Bytecode::createOpcode(Bytecode::e_EqInts);
+    *result = Bytecode::createLoad(shorts[0], shorts[1]);
     return 0;
 }
 
-int parseIncInt(Bytecode                        *result,
-                bsl::string                     *errorMessage,
-                bslma::Allocator                *alloc,
-                const StringRef&                 data,
-                const FunctionNameToAddressMap&  functions)
+int parseLoadI32(Bytecode           *result,
+                 bsl::string        *errorMessage,
+                 bslma::Allocator   *alloc,
+                 const StringRef&    data,
+                 const FunctionMap&  functions)
 {
-    const int addr = parseInt(data);
-    if (0 > addr) {
-        *errorMessage = "invalid index";
+    bsl::vector<short> shorts;
+    if (0 != parseShorts(&shorts, data) || 2 != shorts.size()) {
+        *errorMessage = "invalid arguments";
         return -1;
     }
-    *result = Bytecode::createOpcode(Bytecode::e_IncInt,
-                                     Datum::createInteger(addr));
+    *result = Bytecode::createLoadI32(shorts[0], shorts[1]);
     return 0;
 }
 
-int parseAddDoubles(Bytecode                        *result,
-                    bsl::string                     *errorMessage,
-                    bslma::Allocator                *alloc,
-                    const StringRef&                 data,
-                    const FunctionNameToAddressMap&  functions)
+int parseLoadDbl(Bytecode           *result,
+                 bsl::string        *errorMessage,
+                 bslma::Allocator   *alloc,
+                 const StringRef&    data,
+                 const FunctionMap&  functions)
 {
-    if (!data.empty()) {
-        *errorMessage = "trailing data";
+    bsl::vector<short> shorts;
+    if (0 != parseShorts(&shorts, data) || 2 != shorts.size()) {
+        *errorMessage = "invalid arguments";
         return -1;
     }
-    *result = Bytecode::createOpcode(Bytecode::e_AddDoubles);
+    *result = Bytecode::createLoadDouble(shorts[0], shorts[1]);
     return 0;
 }
 
-int parseAddInts(Bytecode                        *result,
-                 bsl::string                     *errorMessage,
-                 bslma::Allocator                *alloc,
-                 const StringRef&                 data,
-                 const FunctionNameToAddressMap&  functions)
+int parseEqI32(Bytecode           *result,
+               bsl::string        *errorMessage,
+               bslma::Allocator   *alloc,
+               const StringRef&    data,
+               const FunctionMap&  functions)
 {
-    if (!data.empty()) {
-        *errorMessage = "trailing data";
+    bsl::vector<short> shorts;
+    if (0 != parseShorts(&shorts, data) || 3 != shorts.size()) {
+        *errorMessage = "invalid arguments";
         return -1;
     }
-    *result = Bytecode::createOpcode(Bytecode::e_AddInts);
+    *result = Bytecode::createEqI32(shorts[0], shorts[1], shorts[2]);
     return 0;
 }
 
-int parseCall(Bytecode                        *result,
-              bsl::string                     *errorMessage,
-              bslma::Allocator                *alloc,
-              const StringRef&                 data,
-              const FunctionNameToAddressMap&  functions)
+int parseConst(Bytecode           *result,
+               bsl::string        *errorMessage,
+               bslma::Allocator   *alloc,
+               const StringRef&    data,
+               const FunctionMap&  functions)
 {
-    const int addr = parseInt(data);
-    if (0 > addr) {
-        *errorMessage = "invalid index";
+    bsl::vector<short> shorts;
+    if (0 != parseShorts(&shorts, data) || 3 != shorts.size()) {
+        *errorMessage = "invalid arguments";
         return -1;
     }
-    *result = Bytecode::createOpcode(Bytecode::e_Call,
-                                     Datum::createInteger(addr));
-    return 0;
-}
-
-int parseExecute(Bytecode                        *result,
-                 bsl::string                     *errorMessage,
-                 bslma::Allocator                *alloc,
-                 const StringRef&                 data,
-                 const FunctionNameToAddressMap&  functions)
-{
-    if (!data.empty()) {
-        *errorMessage = "trailing data";
-        return -1;
-    }
-    *result = Bytecode::createOpcode(Bytecode::e_Execute);
-    return 0;
-}
-
-int parseExit(Bytecode                        *result,
-              bsl::string                     *errorMessage,
-              bslma::Allocator                *alloc,
-              const StringRef&                 data,
-              const FunctionNameToAddressMap&  functions)
-{
-    if (!data.empty()) {
-        *errorMessage = "trailing data";
-        return -1;
-    }
-    *result = Bytecode::createOpcode(sjtt::Bytecode::e_Exit);
-    return 0;
-}
-
-int parseResize(Bytecode                        *result,
-                bsl::string                     *errorMessage,
-                bslma::Allocator                *alloc,
-                const StringRef&                 data,
-                const FunctionNameToAddressMap&  functions)
-{
-    const int addr = parseInt(data);
-    if (0 > addr) {
-        *errorMessage = "invalid index";
-        return -1;
-    }
-    *result = Bytecode::createOpcode(Bytecode::e_Resize,
-                                     Datum::createInteger(addr));
+    *result = Bytecode::createEqI32(shorts[0], shorts[1], shorts[2]);
     return 0;
 }
 
@@ -251,27 +220,25 @@ typedef int (*ParserFunction)(Bytecode *,
                               bsl::string *,
                               bslma::Allocator *,
                               const StringRef&,
-                              const FunctionNameToAddressMap&);
+                              const FunctionMap&);
 
 
+// Note that the entries in 's_Parsers' must be ordered s.t. most exact matches
+// come first.  For example, if 'Ai' and 'A' are both valid opcode names, 'Ai'
+// must come first.  Otherwise, 'A' will match 'Ai'.
 const struct ParserEntry {
     const char     *code;
     ParserFunction  parser;
 } s_Parsers[] = {
-    { "P", parsePush },
-    { "L", parseLoad },
+    { "Ad", parseAllocateDouble },
+    { "Ai", parseAllocateI32 },
+    { "A", parseAllocate },
+    { "Si", parseStoreI32 },
+    { "Sd", parseStoreDbl },
     { "S", parseStore },
-    { "J", parseJump },
-    { "I=i", parseIfIntsEq },
-    { "=i", parseEqInts },
-    { "I", parseIf },
-    { "++i", parseIncInt },
-    { "+d", parseAddDoubles },
-    { "+i", parseAddInts },
-    { "C", parseCall },
-    { "E", parseExecute },
-    { "X", parseExit },
-    { "V", parseResize },
+    { "Li", parseLoadI32 },
+    { "Ld", parseLoadDbl },
+    { "L", parseLoad },
 };
 
 int findParser(StringRef* data)
@@ -294,8 +261,7 @@ int findParser(StringRef* data)
 int BytecodeDSLUtil::readDatum(Datum                           *result,
                                bsl::string                     *errorMessage,
                                Allocator                       *allocator,
-                               const StringRef&                 source,
-                               const FunctionNameToAddressMap&  functions) {
+                               const StringRef&                 source) {
     if (0 == source.length()) {
         *errorMessage = "empty datum";
         return -1;                                                    // RETURN
@@ -337,15 +303,6 @@ int BytecodeDSLUtil::readDatum(Datum                           *result,
             return -1;                                                // RETURN
         }
       } break;
-      case 'e': {
-        const bsl::string name(source.begin() + 1, source.end());
-        FunctionNameToAddressMap::const_iterator i = functions.find(name);
-        if (functions.end() == i) {
-            *errorMessage = "unknown function name '" + name + "'";
-            return -1;                                                // RETURN
-        }
-        *result = sjtd::DatumUdtUtil::datumFromExternalFunction(i->second);
-      } break;
       default: {
         *errorMessage = "unknown datum type '";
         *errorMessage += source[0];
@@ -356,10 +313,10 @@ int BytecodeDSLUtil::readDatum(Datum                           *result,
     return 0;
 }
 
-int BytecodeDSLUtil::readDSL(bsl::vector<sjtt::Bytecode>     *result,
-                             bsl::string                     *errorMessage,
-                             const StringRef&                 dsl,
-                             const FunctionNameToAddressMap&  functions) {
+int BytecodeDSLUtil::readDSL(bsl::vector<sjtt::Bytecode> *result,
+                             bsl::string                 *errorMessage,
+                             const StringRef&             dsl,
+                             const FunctionMap&           functions) {
     Allocator *alloc = result->get_allocator().mechanism();
     const char *next = dsl.begin();
     while (next != dsl.end()) {
@@ -406,4 +363,3 @@ int BytecodeDSLUtil::readDSL(bsl::vector<sjtt::Bytecode>     *result,
     return 0;
 }
 }
-*/
