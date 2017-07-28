@@ -207,12 +207,147 @@ int parseConst(Bytecode           *result,
                const StringRef&    data,
                const FunctionMap&  functions)
 {
+    bsl::string next;
+    bsl::istringstream is(data);
+    if (!bsl::getline(is, next, ',')) {
+        *errorMessage = "no comma";
+        return -1;
+    }
+    const short dest = parseShort(next);
+    if (0 > dest) {
+        *errorMessage = "bad dest";
+        return -1;
+    }
+    if (!bsl::getline(is, next)) {
+        *errorMessage = "bad const value";
+        return -1;
+    }
+    Datum value;
+    if (0 < BytecodeDSLUtil::readDatum(&value, errorMessage, alloc, next)) {
+        return -1;
+    }
+    *result = Bytecode::createConst(dest, value);
+    return 0;
+}
+
+int parseExtractI32(Bytecode           *result,
+                    bsl::string        *errorMessage,
+                    bslma::Allocator   *alloc,
+                    const StringRef&    data,
+                    const FunctionMap&  functions)
+{
+    bsl::vector<short> shorts;
+    if (0 != parseShorts(&shorts, data) || 2 != shorts.size()) {
+        *errorMessage = "invalid arguments";
+        return -1;
+    }
+    *result = Bytecode::createExtractI32(shorts[0], shorts[1]);
+    return 0;
+}
+
+int parseExtractDbl(Bytecode           *result,
+                    bsl::string        *errorMessage,
+                    bslma::Allocator   *alloc,
+                    const StringRef&    data,
+                    const FunctionMap&  functions)
+{
+    bsl::vector<short> shorts;
+    if (0 != parseShorts(&shorts, data) || 2 != shorts.size()) {
+        *errorMessage = "invalid arguments";
+        return -1;
+    }
+    *result = Bytecode::createExtractDouble(shorts[0], shorts[1]);
+    return 0;
+}
+
+int parseJump(Bytecode           *result,
+              bsl::string        *errorMessage,
+              bslma::Allocator   *alloc,
+              const StringRef&    data,
+              const FunctionMap&  functions)
+{
+    bsl::string datumError;
+    const int dest = parseShort(data);
+    if (0 > dest) {
+        *errorMessage = "invalid dest";
+        return -1;
+    }
+    *result = Bytecode::createJump(dest);
+    return 0;
+}
+
+int parseIfI32(Bytecode           *result,
+               bsl::string        *errorMessage,
+               bslma::Allocator   *alloc,
+               const StringRef&    data,
+               const FunctionMap&  functions)
+{
+    bsl::vector<short> shorts;
+    if (0 != parseShorts(&shorts, data) || 2 != shorts.size()) {
+        *errorMessage = "invalid arguments";
+        return -1;
+    }
+    *result = Bytecode::createIfI32(shorts[0], shorts[1]);
+    return 0;
+}
+
+int parseAddI32(Bytecode           *result,
+                bsl::string        *errorMessage,
+                bslma::Allocator   *alloc,
+                const StringRef&    data,
+                const FunctionMap&  functions)
+{
     bsl::vector<short> shorts;
     if (0 != parseShorts(&shorts, data) || 3 != shorts.size()) {
         *errorMessage = "invalid arguments";
         return -1;
     }
-    *result = Bytecode::createEqI32(shorts[0], shorts[1], shorts[2]);
+    *result = Bytecode::createAddI32(shorts[0], shorts[1], shorts[2]);
+    return 0;
+}
+
+int parseCall(Bytecode           *result,
+              bsl::string        *errorMessage,
+              bslma::Allocator   *alloc,
+              const StringRef&    data,
+              const FunctionMap&  functions)
+{
+    bsl::string next;
+    bsl::istringstream is(data);
+    if (!bsl::getline(is, next, ',')) {
+        *errorMessage = "no dest";
+        return -1;
+    }
+    const short dest = parseShort(next);
+    if (0 > dest) {
+        *errorMessage = "bad dest";
+        return -1;
+    }
+    bsl::string name;
+    if (!bsl::getline(is, name, ',')) {
+        *errorMessage = "no name";
+        return -1;
+    }
+    getline(is, next);
+    const FunctionMap::const_iterator i = functions.find(name);
+    if (functions.end() == i) {
+        *errorMessage = "unknown function '";
+        *errorMessage += name;
+        *errorMessage += "'";
+        return -1;
+    }
+    bsl::vector<short> shorts;
+    if (0 != parseShorts(&shorts, next)) {
+        *errorMessage = "bad args";
+        return -1;
+    }
+    short *args = 0;
+    if (!shorts.empty()) {
+        const int memSize = sizeof(short) * shorts.size();
+        args = static_cast<short *>(alloc->allocate(memSize));
+        ::memcpy(args, shorts.data(), memSize);
+    }
+    *result = Bytecode::createCall(dest, i->second, args);
     return 0;
 }
 
@@ -239,6 +374,14 @@ const struct ParserEntry {
     { "Li", parseLoadI32 },
     { "Ld", parseLoadDbl },
     { "L", parseLoad },
+    { "=i", parseEqI32 },
+    { "C", parseConst },
+    { "Ei", parseExtractI32 },
+    { "Ed", parseExtractDbl },
+    { "J", parseJump },
+    { "Ii", parseIfI32 },
+    { "+i", parseAddI32 },
+    { "()", parseCall },
 };
 
 int findParser(StringRef* data)

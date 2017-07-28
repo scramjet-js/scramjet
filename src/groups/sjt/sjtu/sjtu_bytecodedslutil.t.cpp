@@ -86,6 +86,10 @@ int main(int argc, char *argv[])
                                                                       2);
         BytecodeDSLUtil::FunctionMap functions;
         functions["foo"] = testFun;
+        functions["bar"] = testFun1;
+        functions["baz"] = testFun;
+
+        bsl::vector<short> args = { 4, 5 };
 
         typedef sjtt::Bytecode BC;
 
@@ -172,6 +176,69 @@ int main(int argc, char *argv[])
                 "=i4,5,6",
                 false,
                 { BC::createEqI32(4, 5, 6) },
+                "",
+            },
+            {
+                "const",
+                "C2,T",
+                false,
+                { BC::createConst(2, f(true)) },
+                "",
+            },
+            {
+                "extractI32",
+                "Ei4,5",
+                false,
+                { BC::createExtractI32(4, 5) },
+                "",
+            },
+            {
+                "extractDbl",
+                "Ed8,2",
+                false,
+                { BC::createExtractDouble(8, 2) },
+                "",
+            },
+            {
+                "jump",
+                "J89",
+                false,
+                { BC::createJump(89) },
+                "",
+            },
+            {
+                "ifI32",
+                "Ii7,5",
+                false,
+                { BC::createIfI32(7, 5) },
+                ""
+            },
+            {
+                "addI32",
+                "+i6,3,3",
+                false,
+                { BC::createAddI32(6, 3, 3) },
+                "",
+            },
+            {
+                "call, no args",
+                "()2,foo",
+                false,
+                { BC::createCall(2, testFun, 0) },
+                "",
+            },
+            {
+                "call, one arg",
+                "()2,foo,4",
+                false,
+                { BC::createCall(2, testFun, args.data()) },
+                "",
+            },
+            {
+                "call, two args",
+                "()2,foo,4,5",
+                false,
+                { BC::createCall(2, testFun, args.data()) },
                 "",
             },
         };
