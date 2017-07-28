@@ -351,6 +351,22 @@ int parseCall(Bytecode           *result,
     return 0;
 }
 
+int parseReturn(Bytecode           *result,
+                bsl::string        *errorMessage,
+                bslma::Allocator   *alloc,
+                const StringRef&    data,
+                const FunctionMap&  functions)
+{
+    const int dest = parseShort(data);
+    if (0 > dest) {
+        *errorMessage = "invalid dest";
+        return -1;
+    }
+    *result = Bytecode::createReturn(dest);
+    return 0;
+}
+
+
 typedef int (*ParserFunction)(Bytecode *,
                               bsl::string *,
                               bslma::Allocator *,
@@ -382,6 +398,7 @@ const struct ParserEntry {
     { "Ii", parseIfI32 },
     { "+i", parseAddI32 },
     { "()", parseCall },
+    { "R", parseReturn },
 };
 
 int findParser(StringRef* data)

@@ -81,13 +81,19 @@ int main(int argc, char *argv[])
 
         const sjtt::Bytecode *code =
             reinterpret_cast<const sjtt::Bytecode *>("hello");
-        const sjtt::Function testFun = sjtt::Function::createFunction(code,
-                                                                      2,
-                                                                      2);
+        const sjtt::Function testFun0 = sjtt::Function::createFunction(code,
+                                                                       0,
+                                                                       2);
+        const sjtt::Function testFun1 = sjtt::Function::createFunction(code,
+                                                                       1,
+                                                                       2);
+        const sjtt::Function testFun2 = sjtt::Function::createFunction(code,
+                                                                       2,
+                                                                       2);
         BytecodeDSLUtil::FunctionMap functions;
-        functions["foo"] = testFun;
+        functions["foo"] = testFun0;
         functions["bar"] = testFun1;
-        functions["baz"] = testFun;
+        functions["baz"] = testFun2;
 
         bsl::vector<short> args = { 4, 5 };
 
@@ -224,21 +230,28 @@ int main(int argc, char *argv[])
                 "call, no args",
                 "()2,foo",
                 false,
-                { BC::createCall(2, testFun, 0) },
+                { BC::createCall(2, testFun0, 0) },
                 "",
             },
             {
                 "call, one arg",
-                "()2,foo,4",
+                "()2,bar,4",
                 false,
-                { BC::createCall(2, testFun, args.data()) },
+                { BC::createCall(2, testFun1, args.data()) },
                 "",
             },
             {
                 "call, two args",
-                "()2,foo,4,5",
+                "()2,baz,4,5",
                 false,
-                { BC::createCall(2, testFun, args.data()) },
+                { BC::createCall(2, testFun2, args.data()) },
+                "",
+            },
+            {
+                "return",
+                "R8",
+                false,
+                { BC::createReturn(8) },
                 "",
             },
         };
