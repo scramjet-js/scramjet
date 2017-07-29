@@ -8,7 +8,7 @@ namespace bdld  { class Datum; }
 namespace bslma { class Allocator; }
 }
 
-namespace sjtt { class Bytecode; }
+namespace sjtt { class Function; }
 
 namespace sjtu {
 
@@ -21,14 +21,15 @@ struct InterpretUtil {
     typedef BloombergLP::bslma::Allocator Allocator;
 
     // CLASS METHODS
-    static Datum interpretBytecode(Allocator            *allocator,
-                                   const sjtt::Bytecode *codes);
-        // Evaluate the specified byte 'codes' and return the result after
-        // evaluating an 'e_Exit' code, using the specified 'allocator' to
-        // allocate memory.  The behavior is undefined if the codes cannot be
-        // evaluated e.g., if the interpreter is directed to execute a
-        // non-function, or the interpreter would be directed to execute a code
-        // at an index not within the range of valid codes.
+    static Datum interpret(Allocator             *allocator,
+                           const sjtt::Function&  function,
+                           const Datum           *args);
+        // Return the result of interpreting the specified 'function' over the
+        // specified 'args', using the specified 'allocator' to allocate memory
+        // return in the result.  The behavior undefined unless
+        // '0 != args || 0 == function.argCount()'.
+        // Furthermore, the behavior is undefined unless the code in 'function'
+        // is well-defined.
 };
 }
 
