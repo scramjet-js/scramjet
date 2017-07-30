@@ -254,6 +254,17 @@ int main(int argc, char *argv[])
                 { BC::createReturn(8) },
                 "",
             },
+            {
+                "multiple",
+                "R8|R7|J2",
+                false,
+                {
+                    BC::createReturn(8),
+                    BC::createReturn(7),
+                    BC::createJump(2),
+                },
+                ""
+            },
         };
         for (int i = 0; i < (sizeof(cases) / sizeof(cases[0])); ++i) {
             const Case& c = cases[i];

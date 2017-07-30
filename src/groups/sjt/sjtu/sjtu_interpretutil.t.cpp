@@ -61,18 +61,6 @@ void aSsErT(bool condition, const char *message, int line)
 #define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BDLS_TESTUTIL_L_  // current Line number
 
-
-namespace {
-    bdld::Datum testExecute(const sjtt::ExecutionContext& context) {
-        double result = 0;
-        for (int i = 0; i < context.numArgs(); ++i) {
-            const bdld::Datum& arg = context.args()[i];
-            result += arg.theDouble();
-        }
-        return bdld::Datum::createDouble(result);
-    }
-}
-
 // ============================================================================
 //                               MAIN PROGRAM
 // ----------------------------------------------------------------------------
@@ -88,54 +76,23 @@ int main(int argc, char *argv[])
         bdlma::SequentialAllocator alloc;
         const sjtd::DatumFactory f(&alloc);
 
-        BytecodeDSLUtil::FunctionNameToAddressMap functions;
-        functions["foo"] = testExecute;
+        BytecodeDSLUtil::FunctionMap functions;
 
         const struct Case {
-            const char   *name;
-            const char   *input;
+            const char         *name;
+            const char         *input;
+            int                 argCount;
+            int                 numLocals;
+            const bdld::Datum  *args;
             bdld::Datum   expected;
         } cases[] = {
-            { "push and return", "Pi3|X", f(3) },
-            { "add doubles", "Pd3|Pd1|+d|X", f(4.) },
-            { "add ints", "Pi3|Pi1|+i|X", f(4) },
-            { "eq ints, true", "Pi4|Pi4|=i|X", f(true) },
-            { "eq ints, false", "Pi2|Pi4|=i|X", f(false) },
-            { "inc int", "Pi3|S0|++i0|L0|X", f(4) },
-            { "exec 0 args", "Pi0|Pefoo|E|X", f(0.) },
-            { "exec 1 args", "Pd3|Pi1|Pefoo|E|X", f(3.) },
-            { "exec 2 args", "Pd4|Pd3|Pi2|Pefoo|E|X", f(7.) },
-            { "exec preserving stack", "Pd3|Pi1|Pefoo|E|Pd2|+d|X", f(5.) },
-            { "load & store", "Pi1|S3|Pi2|L3|X", f(1) },
-            { "jump", "J3|Pi1|X|Pi3|X", f(3) },
-            { "if - true", "PT|I3|X|Pi8|X", f(8) },
-            { "if - false", "PF|I4|Pi2|X|Pi8|X", f(2) },
-            { "if=i - true", "Pi2|Pi2|I=i4|X|Pi8|X", f(8) },
-            { "if=i - false", "Pi1|Pi2|I=i5|Pi2|X|Pi8|X", f(2) },
             {
-                "call and return, 2 args, ignored",
-                "Pd8|Pi2|Pi4|Pi2|C8|+d|X|Pi3|Pd6|X",
-                f(14.)
-            },
-            {
-                "call with a jump and return, no args",
-                "Pd8|Pi0|C6|+d|X|Pi3|J8|X|Pd6|X",
-                f(14.)
-            },
-            {
-                "call and return, no args, push bad arg intdex",
-                "Pi0|C3|X|L6|X",
-                f.u(),
-            },
-            {
-                "call and return, push an arg",
-                "Pi3|Pi1|C4|X|L0|X",
-                f(3),
-            },
-            {
-                "resize",
-                "Pi3|V80|Pi4|L79|X",
-                f.u(),
+                "const and return",
+                "C0,T|R0",
+                0,
+                1,
+                0,
+                f(true),
             },
         };
         for (int i = 0; i < sizeof(cases) / sizeof(cases[0]); ++i) {
@@ -147,9 +104,13 @@ int main(int argc, char *argv[])
                                                      c.input,
                                                      functions);
             LOOP2_ASSERT(c.name, errorMessage, 0 == ret);
-            const bdld::Datum result = InterpretUtil::interpretBytecode(
-                                                                     &alloc,
-                                                                     &code[0]);
+            const sjtt::Function fun = sjtt::Function::createFunction(
+                                                                  &code[0],
+                                                                  c.argCount,
+                                                                  c.numLocals);
+            const bdld::Datum result = InterpretUtil::interpret(&alloc,
+                                                                fun,
+                                                                c.args);
             LOOP2_ASSERT(c.name, result, result == c.expected);
         }
       } break;

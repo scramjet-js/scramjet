@@ -127,7 +127,7 @@ class Bytecode {
         e_IfI32,
             // If the value at the integer store in the variable at 'x' is
             // non-zero, jump to 'offset'.  Otherwise, do nothing.  The
-            // behavior is undefined unless the variableo at 'x' was assigned
+            // behavior is undefined unless the variable at 'x' was assigned
             // an integer.
 
         e_AddI32,
