@@ -36,7 +36,7 @@ InterpretUtil::interpret(Allocator             *allocator,
     typedef sjtt::Bytecode BC;
 
 call:
-    frames.emplace_back(bottom, nextFun->code(), nextFun->code());
+    frames.emplace_back(bottom, *nextFun, nextFun->code());
     frame = &frames.back();
 next_code:
     const sjtt::Bytecode& code = *frame->pc();

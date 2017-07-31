@@ -74,22 +74,27 @@ int main(int argc, char *argv[])
             bdld::Datum::createInteger(4),
         };
         Bytecode code[1];
+        const Function fun = Function::createFunction(code,
+                                                                  1,
+                                                                  0,
+                                                                  0);
 
-        ASSERT(&stack[0] == &Frame(0, code, code).getValue(&stack, 0));
-        ASSERT(&stack[1] == &Frame(0, code, code).getValue(&stack, 1));
-        ASSERT(&stack[1] == &Frame(1, code, code).getValue(&stack, 0));
-        ASSERT(&stack[2] == &Frame(2, code, code).getValue(&stack, 0));
-        ASSERT(&stack[2] == &Frame(1, code, code).getValue(&stack, 1));
-        ASSERT(&stack[2] == &Frame(0, code, code).getValue(&stack, 2));
+        ASSERT(&stack[0] == &Frame(0, fun, code).getValue(&stack, 0));
+        ASSERT(&stack[1] == &Frame(0, fun, code).getValue(&stack, 1));
+        ASSERT(&stack[1] == &Frame(1, fun, code).getValue(&stack, 0));
+        ASSERT(&stack[2] == &Frame(2, fun, code).getValue(&stack, 0));
+        ASSERT(&stack[2] == &Frame(1, fun, code).getValue(&stack, 1));
+        ASSERT(&stack[2] == &Frame(0, fun, code).getValue(&stack, 2));
       } break;
       case 4: {
         if (verbose) cout << endl
                           << "jump" << endl
                           << "====" << endl;
         Bytecode code[3];
-        Frame f(0, code, code);
+        const Function fun = Function::createFunction(code, 3, 0, 0);
+        Frame f(0, fun, code);
         f.jump(2);
-        ASSERT(code == f.firstCode());
+        ASSERT(fun == f.function());
         ASSERT((code + 2) == f.pc());
       } break;
       case 3: {
@@ -97,7 +102,8 @@ int main(int argc, char *argv[])
                           << "incrementPc" << endl
                           << "===========" << endl;
         Bytecode code[3];
-        Frame f(0, code, code + 1);
+        const Function fun = Function::createFunction(code, 3, 0, 0);
+        Frame f(0, fun, code + 1);
         f.incrementPc();
         ASSERT((code + 2) == f.pc());
       } break;
@@ -107,33 +113,34 @@ int main(int argc, char *argv[])
                           << "=========================" << endl;
         const Bytecode *code = reinterpret_cast<const Bytecode *>("x");
         const Bytecode *code1 = reinterpret_cast<const Bytecode *>("y");
-
+        const Function fun = Function::createFunction(code, 1, 0, 0);
+        const Function fun1 = Function::createFunction(code1, 1, 0, 0);
         // same
         {
-            Frame a(1, code, code1);
-            Frame b(1, code, code1);
+            Frame a(1, fun, code1);
+            Frame b(1, fun, code1);
             ASSERT(a == b);
             ASSERT(!(a != b));
         }
 
         // diff bottom
         {
-            Frame a(8, code, code1);
-            Frame b(4, code, code1);
+            Frame a(8, fun, code1);
+            Frame b(4, fun, code1);
             ASSERT(a != b);
         }
 
         // diff first code
         {
-            Frame a(0, code, code1);
-            Frame b(0, code1, code1);
+            Frame a(0, fun, code1);
+            Frame b(0, fun1, code1);
             ASSERT(a != b);
         }
 
         // diff pc
         {
-            Frame a(0, code, code);
-            Frame b(0, code, code1);
+            Frame a(0, fun, code);
+            Frame b(0, fun, code1);
             ASSERT(a != b);
         }
       } break;
@@ -142,9 +149,10 @@ int main(int argc, char *argv[])
                           << "constructor and basic acccessors" << endl
                           << "================================" << endl;
         const Bytecode *code = reinterpret_cast<const Bytecode *>("x");
-        Frame frame(1, code, code + 1);
+        const Function fun = Function::createFunction(code, 3, 0, 0);
+        Frame frame(1, fun, code + 1);
         ASSERT(1 == frame.bottom());
-        ASSERT(code == frame.firstCode());
+        ASSERT(fun == frame.function());
         ASSERT(code + 1 == frame.pc());
       } break;
       default: {

@@ -23,12 +23,12 @@
 #include <bslmf_nestedtraitdeclaration.h>
 #endif
 
-#ifndef INCLUDED_SJTT_BYTECODE
+#ifndef INCLUDED_SJTT_BYTEDCODE
 #include <sjtt_bytecode.h>
 #endif
 
-#ifndef INCLUDED_SJTD_DATUMUDTUTIL
-#include <sjtd_datumudtutil.h>
+#ifndef INCLUDED_SJTT_FUNCTION
+#include <sjtt_function.h>
 #endif
 
 namespace sjtt {
@@ -50,8 +50,8 @@ class Frame {
 
   private:
     // DATA
-    const sjtt::Bytecode *d_firstCode_p;       // held, not owned
-    const sjtt::Bytecode *d_pc_p;              // held, not owned
+    Function        d_function;
+    const Bytecode *d_pc_p;              // held, not owned
     int                   d_bottom;
 
   public:
@@ -60,13 +60,16 @@ class Frame {
                                    BloombergLP::bslmf::IsBitwiseMoveable);
 
     // CREATORS
-    Frame(int                   bottom,
-          const sjtt::Bytecode *firstCode,
-          const sjtt::Bytecode *pc);
+    Frame(int                    bottom,
+          const Function&  function,
+          const Bytecode  *pc);
         // Create a new 'Frame' object whose stack begins at the specified
-        // 'bottom' index.  The bytecode from this frame starts at the
-        // specified 'firstCode', beginning with the specified 'pc' program
-        // counter.  The behavior is undefined unless '0 <= bottom'.
+        // 'bottom' index and whose next code is the specified 'pc'.  The
+        // behavior is undefined unless '0 != pc || 0 == function.numCodes())'
+        // and, if '0 != pc',
+        // 'pc >= function.code()' and
+        // 'pc < (function.code() + function.numCodes())'.
+        // The behavior is also undefined unless '0 >= bottom'.
 
     Frame(const Frame& rhs) = default;
         // Create a new 'Frame' object copied from the specified 'rhs' using
@@ -78,11 +81,16 @@ class Frame {
         // return a reference to this object.
 
     void incrementPc();
-        // Move the program counter to the next instruction.
+        // Move the program counter to the next instruction.  The behavior is
+        // undefined unless '0 != pc()' and
+        // 'function.codes() + function.numCodes() > pc() + 1'.
 
     void jump(int index);
         // Move the program counter to the position of the specified 'index'.
-        // The behavior is undefined unless '0 <= index'.
+        // The behavior is undefined unless
+        // '0 >= index' and
+        // '0 != function.code()' and
+        // '0 <= index && function().numCodes() > index'.
 
     // ACCESSORS
     int bottom() const;
@@ -94,10 +102,10 @@ class Frame {
         // specified 'stack'.  The behavior is undefined unless
         // '0 <= index && bottom() + index < stack.size()'.
 
-    const sjtt::Bytecode *firstCode() const;
-        // Return the address of the first byte code in this frame.
+    const Function& function() const;
+        // Return the 'Function' object associated with this frame.
 
-    const sjtt::Bytecode *pc() const;
+    const Bytecode *pc() const;
         // Return the program counter for this frame.
 };
 
@@ -105,17 +113,14 @@ class Frame {
 bool operator==(const Frame& lhs, const Frame& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' 'Frame' objects have the
     // same value, and 'false' otherwise.  Two 'Frame' objects have the same
-    // value if their corresponding contained 'Datum' objects have the same
-    // value.  For a detailed explanation about equality of 'Datum' objects,
-    // refer to the documentation of operator '==' defined for 'Datum'.
+    // value if their corresponding 'bottom', 'function', and 'pc' attributes
+    // are the same.
 
 bool operator!=(const Frame& lhs, const Frame& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' 'Frame' objects do not
     // have the same value, and 'false' otherwise.  Two 'Frame' objects do not
-    // have the same value if their corresponding contained 'Datum' objects
-    // have the same value.  For a detailed explanation about inequality of
-    // 'Datum' objects, refer to the documentation of operator '==' defined for
-    // 'Datum'.
+    // have the same value if any of their corresponding 'bottom', 'function',
+    // or 'pc' attributes are different.
 
 // ============================================================================
 //                             INLINE DEFINITIONS
@@ -126,21 +131,24 @@ bool operator!=(const Frame& lhs, const Frame& rhs);
                                 // -----------
 // CREATORS
 inline
-Frame::Frame(int                   bottom,
-             const sjtt::Bytecode *firstCode,
-             const sjtt::Bytecode *pc)
-: d_firstCode_p(firstCode)
+Frame::Frame(int                    bottom,
+             const Function&  function,
+             const Bytecode  *pc)
+: d_function(function)
 , d_pc_p(pc)
 , d_bottom(bottom)
 {
+    BSLS_ASSERT(0 != pc || 0 == function.numCodes());
+    BSLS_ASSERT(0 == pc ||
+      (pc >= function.code() && pc < (function.code() + function.numCodes())));
     BSLS_ASSERT(0 <= bottom);
-    BSLS_ASSERT(0 != firstCode);
-    BSLS_ASSERT(0 != pc);
 }
 
 inline
 void Frame::incrementPc()
 {
+    BSLS_ASSERT(0 != d_function.code() &&
+                d_function.code() + d_function.numCodes() > pc() + 1);
     ++d_pc_p;
 }
 
@@ -148,7 +156,9 @@ inline
 void Frame::jump(int index)
 {
     BSLS_ASSERT(0 <= index);
-    d_pc_p = d_firstCode_p + index;
+    BSLS_ASSERT(0 != d_function.code() &&
+                0 <= index && d_function.numCodes() > index);
+    d_pc_p = d_function.code() + index;
 }
 
 // ACCESSORS
@@ -167,31 +177,31 @@ BloombergLP::bdld::Datum& Frame::getValue(bsl::vector<Datum> *stack,
 }
 
 inline
-const sjtt::Bytecode *Frame::firstCode() const
+const Function& Frame::function() const
 {
-    return d_firstCode_p;
+    return d_function;
 }
 
 inline
-const sjtt::Bytecode *Frame::pc() const
+const Bytecode *Frame::pc() const
 {
     return d_pc_p;
 }
-}  // close package namespace
 
 // FREE OPERATORS
 inline
-bool sjtt::operator==(const Frame& lhs, const Frame& rhs)
+bool operator==(const Frame& lhs, const Frame& rhs)
 {
-    return lhs.firstCode() == rhs.firstCode() &&
+    return lhs.function () == rhs.function() &&
         lhs.pc() == rhs.pc() &&
         lhs.bottom() == rhs.bottom();
 }
 
 inline
-bool sjtt::operator!=(const Frame& lhs, const Frame& rhs)
+bool operator!=(const Frame& lhs, const Frame& rhs)
 {
     return !(lhs == rhs);
 }
+}  // close package namespace
 
 #endif
