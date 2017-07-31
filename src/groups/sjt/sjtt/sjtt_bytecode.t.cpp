@@ -73,8 +73,8 @@ int main(int argc, char *argv[])
       case 19: {
         typedef Bytecode BC;
         const Bytecode code = BC::createAllocate(3);
-        const Function f1 = Function::createFunction(&code, 3, 4);
-        const Function f2 = Function::createFunction(&code, 3, 5);
+        const Function f1 = Function::createFunction(&code, 1, 3, 4);
+        const Function f2 = Function::createFunction(&code, 1, 3, 5);
         short someArgs[] = {1, 2, 3};
         short someSameArgs[] = {1, 2, 3};
         short moreArgs[] = {2, 2, 3};
@@ -426,7 +426,7 @@ int main(int argc, char *argv[])
                           << "createCall" << endl
                           << "==========" << endl;
         const Bytecode code = Bytecode::createAllocate(3);
-        const Function f = Function::createFunction(&code, 3, 4);
+        const Function f = Function::createFunction(&code, 1, 3, 4);
         short someArgs[] = {1, 2, 3};
         const Bytecode bc = Bytecode::createCall(3, f, someArgs);
         ASSERT(Bytecode::e_Call == bc.opcode());

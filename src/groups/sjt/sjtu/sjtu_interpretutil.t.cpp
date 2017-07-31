@@ -105,7 +105,8 @@ int main(int argc, char *argv[])
                                                      functions);
             LOOP2_ASSERT(c.name, errorMessage, 0 == ret);
             const sjtt::Function fun = sjtt::Function::createFunction(
-                                                                  &code[0],
+                                                                  code.data(),
+                                                                  code.size(),
                                                                   c.argCount,
                                                                   c.numLocals);
             const bdld::Datum result = InterpretUtil::interpret(&alloc,

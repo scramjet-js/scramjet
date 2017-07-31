@@ -30,6 +30,12 @@ struct InterpretUtil {
         // '0 != args || 0 == function.argCount()'.
         // Furthermore, the behavior is undefined unless the code in 'function'
         // is well-defined.
+
+    static void checkSingleAssignment(const sjtt::Function& function);
+        // Do nothing.  The behavior is undefined unless the specified
+        // 'function' assigns to each of its local variables at most once.
+        // Note that indices associated with arguments (i.e.,
+        // 'index < function.numArgs()'), are already assigned.
 };
 }
 

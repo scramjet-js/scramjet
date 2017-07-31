@@ -32,7 +32,8 @@ class Function {
     friend bool operator==(const Function& lhs, const Function& rhs);
 
     // DATA
-    const Bytecode  *d_code_p;
+    const Bytecode  *d_code_p;     // held, not owned
+    int              d_numCodes;
     int              d_argCount;   // number of named arguments to the function
     int              d_numLocals;  // number of local variables
 
@@ -46,11 +47,13 @@ class Function {
 
     // CREATORS
     static Function createFunction(const Bytecode *code,
+                                   int             numCodes,
                                    int             argCount,
                                    int             numLocals);
         // Create a new 'Fnction' object having the specified 'code',
         // 'argCount', and 'numLocals'.  The behavior is undefined unless
-        // '0 <= argCount' and '0 <= numLocals'.
+        // '0 <= argCount' and '0 <= numLocals', and
+        // '0 != code || 0 == numCodes'.
 
     // ACCESSORS
     int argCount() const;
@@ -61,6 +64,9 @@ class Function {
 
     const Bytecode *code() const;
         // Return the code for this function.
+
+    int numCodes() const;
+        // Return the number of byte codes in this function.
 
     int numLocals() const;
         // Return the number of locals for this funciton.  The function will
@@ -89,15 +95,17 @@ bool operator!=(const Function& lhs, const Function& rhs);
 // CLASS METHODS
 inline
 Function Function::createFunction(const Bytecode *code,
+                                  int             numCodes,
                                   int             argCount,
                                   int             numLocals)
 {
-    BSLS_ASSERT(0 != code);
+    BSLS_ASSERT(0 != code || 0 == numCodes);
     BSLS_ASSERT(0 <= argCount);
     BSLS_ASSERT(0 <= numLocals);
     Function result;
     result.d_code_p = code;
     result.d_argCount = argCount;
+    result.d_numCodes = numCodes;
     result.d_numLocals = numLocals;
     return result;
 }
@@ -116,6 +124,12 @@ const Bytecode *Function::code() const
 }
 
 inline
+int Function::numCodes() const
+{
+    return d_numCodes;
+}
+
+inline
 int Function::numLocals() const
 {
     return d_numLocals;
@@ -125,6 +139,7 @@ int Function::numLocals() const
 inline bool operator==(const Function& lhs, const Function& rhs) {
     return lhs.d_argCount == rhs.d_argCount &&
         lhs.d_code_p == rhs.d_code_p &&
+        lhs.d_numCodes == rhs.d_numCodes &&
         lhs.d_numLocals == rhs.d_numLocals;
 }
 

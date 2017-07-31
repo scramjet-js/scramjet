@@ -24,7 +24,7 @@ int main(int argc, char* argv[]) {
     bdlma::SequentialAllocator alloc;
     bsl::vector<sjtt::Bytecode> codes(&alloc);
     bsl::string errorMessage;
-    sjtu::BytecodeDSLUtil::FunctionNameToAddressMap functions;
+    sjtu::BytecodeDSLUtil::FunctionMap functions;
     const int ret = sjtu::BytecodeDSLUtil::readDSL(&codes,
                                                    &errorMessage,
                                                    argv[1],
@@ -34,9 +34,11 @@ int main(int argc, char* argv[]) {
         printUsage();
         return 1;
     }
-    const bdld::Datum value = sjtu::InterpretUtil::interpretBytecode(
-                                                                    &alloc,
-                                                                    &codes[0]);
+    const sjtt::Function fun = sjtt::Function::createFunction(codes.data(),
+                                                              codes.size(),
+                                                              0,
+                                                              0);
+    const bdld::Datum value = sjtu::InterpretUtil::interpret(&alloc, fun, 0);
     bsl::cout << value << '\n';
     return 0;
 }

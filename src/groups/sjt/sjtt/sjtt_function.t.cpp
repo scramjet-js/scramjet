@@ -70,20 +70,22 @@ int main(int argc, char *argv[])
                           << "==========" << endl;
         const Bytecode *code1 = reinterpret_cast<const Bytecode *>("hello");
         const Bytecode *code2 = reinterpret_cast<const Bytecode *>("world");
-        const Function f = Function::createFunction(code1, 1, 2);
-        ASSERT(f == Function::createFunction(code1, 1, 2));
-        ASSERT(!(f != Function::createFunction(code1, 1, 2)));
-        ASSERT(f != Function::createFunction(code2, 1, 2));
-        ASSERT(f != Function::createFunction(code1, 2, 2));
-        ASSERT(f != Function::createFunction(code1, 1, 4));
+        const Function f = Function::createFunction(code1, 3, 1, 2);
+        ASSERT(f == Function::createFunction(code1, 3, 1, 2));
+        ASSERT(!(f != Function::createFunction(code1, 3, 1, 2)));
+        ASSERT(f != Function::createFunction(code1, 0, 1, 2));
+        ASSERT(f != Function::createFunction(code2, 3, 1, 2));
+        ASSERT(f != Function::createFunction(code1, 3, 2, 2));
+        ASSERT(f != Function::createFunction(code1, 3, 1, 4));
       } break;
       case 1: {
         if (verbose) cout << endl
                           << "createFunction and basic acccessors" << endl
                           << "================================" << endl;
         const Bytecode *code = reinterpret_cast<const Bytecode *>("hello");
-        Function f = Function::createFunction(code, 1, 2);
+        Function f = Function::createFunction(code, 2, 1, 2);
         ASSERT(code == f.code());
+        ASSERT(2 == f.numCodes());
         ASSERT(1 == f.argCount());
         ASSERT(2 == f.numLocals());
       } break;

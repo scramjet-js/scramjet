@@ -83,11 +83,14 @@ int main(int argc, char *argv[])
             reinterpret_cast<const sjtt::Bytecode *>("hello");
         const sjtt::Function testFun0 = sjtt::Function::createFunction(code,
                                                                        0,
+                                                                       0,
                                                                        2);
         const sjtt::Function testFun1 = sjtt::Function::createFunction(code,
+                                                                       0,
                                                                        1,
                                                                        2);
         const sjtt::Function testFun2 = sjtt::Function::createFunction(code,
+                                                                       0,
                                                                        2,
                                                                        2);
         BytecodeDSLUtil::FunctionMap functions;

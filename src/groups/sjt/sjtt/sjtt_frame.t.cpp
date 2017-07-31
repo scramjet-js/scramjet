@@ -4,8 +4,6 @@
 
 #include <bdls_testutil.h>
 
-#include <sjtt_bytecode.h>
-
 using namespace BloombergLP;
 using namespace bsl;
 using namespace sjtt;
@@ -107,35 +105,35 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl
                           << "operator== and operator!=" << endl
                           << "=========================" << endl;
-        Bytecode code = Bytecode::createOpcode(Bytecode::e_Exit);
-        Bytecode code1 = Bytecode::createOpcode(Bytecode::e_Push);
+        const Bytecode *code = reinterpret_cast<const Bytecode *>("x");
+        const Bytecode *code1 = reinterpret_cast<const Bytecode *>("y");
 
         // same
         {
-            Frame a(1, &code, &code1);
-            Frame b(1, &code, &code1);
+            Frame a(1, code, code1);
+            Frame b(1, code, code1);
             ASSERT(a == b);
             ASSERT(!(a != b));
         }
 
         // diff bottom
         {
-            Frame a(8, &code, &code1);
-            Frame b(4, &code, &code1);
+            Frame a(8, code, code1);
+            Frame b(4, code, code1);
             ASSERT(a != b);
         }
 
         // diff first code
         {
-            Frame a(0, &code, &code1);
-            Frame b(0, &code1, &code1);
+            Frame a(0, code, code1);
+            Frame b(0, code1, code1);
             ASSERT(a != b);
         }
 
         // diff pc
         {
-            Frame a(0, &code, &code);
-            Frame b(0, &code, &code1);
+            Frame a(0, code, code);
+            Frame b(0, code, code1);
             ASSERT(a != b);
         }
       } break;
@@ -143,11 +141,11 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl
                           << "constructor and basic acccessors" << endl
                           << "================================" << endl;
-        Bytecode code = Bytecode::createOpcode(Bytecode::e_Exit);
-        Frame frame(1, &code, &code + 1);
+        const Bytecode *code = reinterpret_cast<const Bytecode *>("x");
+        Frame frame(1, code, code + 1);
         ASSERT(1 == frame.bottom());
-        ASSERT(&code == frame.firstCode());
-        ASSERT(&code + 1 == frame.pc());
+        ASSERT(code == frame.firstCode());
+        ASSERT(code + 1 == frame.pc());
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
