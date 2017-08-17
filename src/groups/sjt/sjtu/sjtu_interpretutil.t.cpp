@@ -61,18 +61,31 @@ void aSsErT(bool condition, const char *message, int line)
 #define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BDLS_TESTUTIL_L_  // current Line number
 
+// helper
+
+struct Failure {};
+static void assertionHandler(const char *text, const char *file, int line)
+{
+    throw Failure();
+}
+
 // ============================================================================
 //                               MAIN PROGRAM
 // ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
-    const int         test = argc > 1 ? atoi(argv[1]) : 0;
+    const int  test = argc > 1 ? atoi(argv[1]) : 0;
+    const bool verbose = argc > 2;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 1: {
+      case 2: {
+        if (verbose) cout << endl
+                          << "interpret" << endl
+                          << "============" << endl;
+
         bdlma::SequentialAllocator alloc;
         const sjtd::DatumFactory f(&alloc);
 
@@ -113,6 +126,187 @@ int main(int argc, char *argv[])
                                                                 fun,
                                                                 c.args);
             LOOP2_ASSERT(c.name, result, result == c.expected);
+        }
+      } break;
+      case 1: {
+        if (verbose) cout << endl
+                          << "checkAssignments" << endl
+                          << "================" << endl;
+
+        bdlma::SequentialAllocator alloc;
+        const sjtd::DatumFactory f(&alloc);
+
+        BytecodeDSLUtil::FunctionMap functions;
+
+        const struct Case {
+            const char *name;
+            const char *input;
+            int         argCount;
+            bool        expectedToFail;
+        } cases[] = {
+            {
+                "single allocate",
+                "A0",
+                0,
+                false,
+            },
+            {
+                "attempt to assign over first arg",
+                "A0",
+                1,
+                true,
+            },
+            {
+                "missed first arg",
+                "A1",
+                1,
+                false,
+            },
+            {
+                "hit last arg",
+                "A1",
+                2,
+                true,
+            },
+            {
+                "double assign",
+                "A0|A0",
+                0,
+                true,
+            },
+            {
+                "different assigns",
+                "A0|A1",
+                0,
+                false,
+            },
+            {
+                "second assign is OOB",
+                "A1|A0",
+                1,
+                true,
+            },
+            {
+                "good two different types of assigns",
+                "A0|C1,T",
+                0,
+                false,
+            },
+            {
+                "bad two different types of assigns",
+                "A1|C1,T",
+                0,
+                true,
+            },
+            {
+                "bad allocateI32",
+                "Ai0",
+                0,
+                false,
+            },
+            {
+                "bad allocateDbl",
+                "Ad0",
+                1,
+                true,
+            },
+            {
+                "bad load",
+                "L1,0",
+                1,
+                true,
+            },
+            {
+                "bad loadI32",
+                "Li0,0",
+                1,
+                true,
+            },
+            {
+                "bad loadDbl",
+                "Ld0,0",
+                1,
+                true,
+            },
+            {
+                "bad eqI32",
+                "=i0,0,1",
+                1,
+                true,
+            },
+            {
+                "bad const",
+                "C0,T",
+                1,
+                true,
+            },
+// TODO:
+//            {
+//                "bad constI32",
+//                "Ci0,2",
+//                1,
+//                true,
+//            },
+//            {
+//                "bad constDbl",
+//                "Cd0,3",
+//                1,
+//                true,
+//            },
+            {
+                "bad extractI32",
+                "Ei0,1",
+                1,
+                true,
+            },
+            {
+                "bad extractDbl",
+                "Ed0,2",
+                1,
+                true,
+            },
+            {
+                "bad allocate",
+                "A0",
+                1,
+                true,
+            },
+            {
+                "bad allocate",
+                "A0",
+                1,
+                true,
+            },
+        };
+        for (int i = 0; i < sizeof(cases) / sizeof(cases[0]); ++i) {
+            const Case& c = cases[i];
+            bsl::vector<sjtt::Bytecode> code(&alloc);
+            bsl::string errorMessage;
+            const int ret = BytecodeDSLUtil::readDSL(&code,
+                                                     &errorMessage,
+                                                     c.input,
+                                                     functions);
+            LOOP2_ASSERT(c.name, errorMessage, 0 == ret);
+            const sjtt::Function fun = sjtt::Function::createFunction(
+                                                                  code.data(),
+                                                                  code.size(),
+                                                                  c.argCount,
+                                                                  0);
+            if (c.expectedToFail) {
+                try {
+                    {
+                        bsls::AssertFailureHandlerGuard guard(
+                                                             assertionHandler);
+                        InterpretUtil::checkAssignments(fun);
+                    }
+                    LOOP2_ASSERT(c.name, "didn't fail", false);
+                }
+                catch(const Failure&) {
+                }
+            }
+            else {
+                InterpretUtil::checkAssignments(fun);
+            }
         }
       } break;
       default: {

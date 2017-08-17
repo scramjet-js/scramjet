@@ -3,7 +3,7 @@
 
 #include <bdlma_localsequentialallocator.h>
 
-#include <bsl_set.h>
+#include <bsl_map.h>
 #include <bsl_vector.h>
 #include <bsls_assert.h>
 
@@ -11,8 +11,6 @@
 #include <sjtt_executioncontext.h>
 #include <sjtd_datumudtutil.h>
 #include <sjtt_frame.h>
-
-#include <bsl_iostream.h>
 
 using namespace BloombergLP;
 
@@ -152,5 +150,38 @@ next_code:
     }
     frame->incrementPc();
     goto next_code;
+}
+
+void
+InterpretUtil::checkAssignments(const sjtt::Function& function)
+{
+    bsl::map<short, int> assignments;
+    for (int i = 0; i < function.numCodes(); ++i) {
+        const sjtt::Bytecode& code = function.code()[i];
+        typedef sjtt::Bytecode BC;
+        switch (code.opcode()) {
+          case BC::e_Allocate:
+          case BC::e_AllocateI32:
+          case BC::e_AllocateDouble:
+          case BC::e_Load:
+          case BC::e_LoadI32:
+          case BC::e_LoadDouble:
+          case BC::e_EqI32:
+          case BC::e_Const:
+          case BC::e_ConstI32:
+          case BC::e_ConstDouble:
+          case BC::e_ExtractI32:
+          case BC::e_ExtractDouble:
+          case BC::e_AddI32:
+          case BC::e_Call: {
+            BSLS_ASSERT(function.argCount() <= code.dest());
+            auto result = assignments.insert(bsl::make_pair(code.dest(), i));
+            BSLS_ASSERT(result.second);
+          } break;
+          default: {
+            // NOOP
+          } break;
+        }
+    }
 }
 }

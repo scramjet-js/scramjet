@@ -105,7 +105,7 @@ class Bytecode {
             // assigned int32 values.
 
         e_Const,
-            // Assign 'value' to the variable at 'dest'.
+            // Assign 'value' to the variable at 'dest'
 
         e_ConstI32,
             // Assign the integer in 'value' to the variable at 'dest'.

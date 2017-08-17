@@ -31,11 +31,12 @@ struct InterpretUtil {
         // Furthermore, the behavior is undefined unless the code in 'function'
         // is well-defined.
 
-    static void checkSingleAssignment(const sjtt::Function& function);
-        // Do nothing.  The behavior is undefined unless the specified
-        // 'function' assigns to each of its local variables at most once.
-        // Note that indices associated with arguments (i.e.,
-        // 'index < function.numArgs()'), are already assigned.
+    static void checkAssignments(const sjtt::Function& function);
+        // Do nothing.  The behavior is undefined unless the code in 'function'
+        // asssigns to no variable index more than onces.  Note that argument
+        // indices are implicitly already assigned to.  Note also that this
+        // method does not check other 'Function' objects that are referenced
+        // by 'function'.
 };
 }
 
