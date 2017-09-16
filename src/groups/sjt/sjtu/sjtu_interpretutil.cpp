@@ -34,6 +34,13 @@ InterpretUtil::interpret(Allocator             *allocator,
     typedef sjtt::Bytecode BC;
 
 call:
+
+    // TODO: Should check all functions once; probably need to create a module
+    // type.
+#ifdef BSLS_ASSERT_IS_ACTIVE
+    InterpretUtil::checkAssignments(function);
+#endif
+
     frames.emplace_back(bottom, *nextFun, nextFun->code());
     frame = &frames.back();
 next_code:

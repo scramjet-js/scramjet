@@ -107,6 +107,30 @@ int main(int argc, char *argv[])
                 0,
                 f(true),
             },
+            {
+                "allocate, store, load, return",
+                "C0,T|A1|S1,0|L2,1|R2",
+                0,
+                3,
+                0,
+                f(true),
+            },
+            {
+                "allocateI32, storeI32, loadI32, return",
+                "C0,i9|Ai1|Si1,0|Li2,1|R2",
+                0,
+                3,
+                0,
+                f(9),
+            },
+            {
+                "allocateD32, storeD32, loadD32, return",
+                "C0,d7|Ad1|Sd1,0|Ld2,1|R2",
+                0,
+                3,
+                0,
+                f(7.0),
+            },
         };
         for (int i = 0; i < sizeof(cases) / sizeof(cases[0]); ++i) {
             const Case& c = cases[i];
@@ -212,7 +236,7 @@ int main(int argc, char *argv[])
             },
             {
                 "bad load",
-                "L1,0",
+                "L0,0",
                 1,
                 true,
             },
@@ -240,19 +264,6 @@ int main(int argc, char *argv[])
                 1,
                 true,
             },
-// TODO:
-//            {
-//                "bad constI32",
-//                "Ci0,2",
-//                1,
-//                true,
-//            },
-//            {
-//                "bad constDbl",
-//                "Cd0,3",
-//                1,
-//                true,
-//            },
             {
                 "bad extractI32",
                 "Ei0,1",
