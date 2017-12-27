@@ -131,6 +131,14 @@ int main(int argc, char *argv[])
                 0,
                 f(7.0),
             },
+            {
+                "eqI32 (yes)",
+                "C0,i8|C1,i8|=i2,0,1|R2",
+                0,
+                3,
+                0,
+                f(0),
+            },
         };
         for (int i = 0; i < sizeof(cases) / sizeof(cases[0]); ++i) {
             const Case& c = cases[i];

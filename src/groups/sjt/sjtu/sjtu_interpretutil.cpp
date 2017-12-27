@@ -31,6 +31,9 @@ InterpretUtil::interpret(Allocator             *allocator,
     ::memcpy(stack.data(), args, sizeof(bdld::Datum) * function.argCount());
     bsl::vector<sjtt::Frame> frames;
 
+    const bsl::vector<int> v;
+    v.push_back(3);
+
     typedef sjtt::Bytecode BC;
 
 call:
