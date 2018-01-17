@@ -137,7 +137,7 @@ int main(int argc, char *argv[])
                 0,
                 3,
                 0,
-                f(0),
+                f(1),
             },
         };
         for (int i = 0; i < sizeof(cases) / sizeof(cases[0]); ++i) {
