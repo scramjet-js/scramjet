@@ -57,7 +57,7 @@ Or, if you want it to be fast, install ninja and replace the last two lines
 with:
 
 ```bash
-$ cmake -GNinja -DCMAKE_BUILD_TYPE ../../src
+$ cmake -GNinja -DCMAKE_BUILD_TYPE=Debug ../../src
 $ ninja
 ```
 
